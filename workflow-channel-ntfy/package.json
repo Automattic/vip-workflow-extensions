@@ -1,0 +1,15 @@
+{
+	"name": "workflow-channel-ntfy",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"lint:css": "wp-scripts lint-style",
+		"build": "wp-scripts build src/admin.js --output-path=build",
+		"start": "wp-scripts start src/admin.js --output-path=build"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^31.7.0",
+		"@wordpress/theme": "^0.10.0"
+	}
+}
+

@@ -1,0 +1,18 @@
+/**
+ * Ntfy Channel Admin Styles
+ */
+
+.vip-channel-card .ntfy-topic {
+	background: var(--wpds-color-bg-surface-neutral-weak);
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var( --wpds-border-radius-md );
+	margin-top: 12px;
+}
+
+.vip-channel-card .ntfy-topic code {
+	font-size: 13px;
+	background: var(--wpds-color-bg-surface-neutral-strong);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	border-radius: var( --wpds-border-radius-md );
+}
+
