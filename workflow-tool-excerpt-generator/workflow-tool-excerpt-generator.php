@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Workflow Excerpt Generator
- * Description: AI-powered excerpt generation using OpenAI. Demonstrates how to add custom tools/abilities to VIP Workflow.
+ * Description: AI-powered excerpt generation using the AI provider configured in VIP Workflow. Demonstrates how to add custom tools/abilities to VIP Workflow.
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com

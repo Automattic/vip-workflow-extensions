@@ -16,7 +16,7 @@ use VIPWorkflow\Integrations\LlmJsonGenerator;
 use VIPWorkflow\Integrations\LlmTextGenerator;
 
 /**
- * AI-powered editorial alignment validator using OpenAI.
+ * AI-powered editorial alignment validator using the AI provider configured in VIP Workflow.
  */
 class EditorialAlignmentChecker {
 
@@ -466,7 +466,7 @@ Respond in JSON format:
 	}
 
 	/**
-	 * Get editorial rules from Gutenberg/Core content guidelines.
+	 * Get the editorial rules configured for this site.
 	 *
 	 * @param int $post_id Optional post ID for post-aware guideline packets.
 	 * @return array

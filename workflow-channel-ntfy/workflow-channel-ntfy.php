@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name: Workflow Ntfy Channel
- * Plugin URI: https://github.com/your-org/workflow-ntfy
  * Description: Adds ntfy.sh push notification support to VIP Workflow. Supports multiple topics for different notification routing.
  * Version: 2.0.0
  * Author: WordPress VIP

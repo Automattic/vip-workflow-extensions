@@ -153,7 +153,7 @@ function execute( ?array $input = null ) {
 
 	// Mint one unguessable pass token per run. The model is told to reply with
 	// this token to signal a pass; author content that says "reply PASS" cannot
-	// forge a token it never saw (VIPPROD-689).
+	// forge a token it never saw.
 	$token = StageAgent::verdict_token();
 
 	// Honor editorial engagement on prior findings. A resolved note means the

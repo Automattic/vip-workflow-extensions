@@ -15,7 +15,7 @@ use VIPWorkflow\Abilities\Availability;
 use VIPWorkflow\Integrations\LlmTextGenerator;
 
 /**
- * AI-powered excerpt generator using OpenAI.
+ * AI-powered excerpt generator using the AI provider configured in VIP Workflow.
  */
 class ExcerptGenerator {
 

@@ -152,8 +152,8 @@ class AirtableDailyStatsJob extends Job {
 		$today      = wp_date( 'Y-m-d' );
 
 		foreach ( $blueprints as $blueprint ) {
-			// Workflow stage is decoupled from post_status (VIPPROD-643); count via
-			// the StageQuery seam, which owns the (now stage-meta) aggregation.
+			// Workflow stage is decoupled from post_status; count via the
+			// StageQuery seam, which owns the (now stage-meta) aggregation.
 			$counts = \VIPWorkflow\Workflow\StageQuery::counts_by_stage( $blueprint );
 
 			foreach ( $blueprint->get_statuses() as $status ) {

@@ -55,7 +55,7 @@ const OPTION_KEY = 'vip_discovery_provider_stream';
  * failing the feed.
  */
 const DEFAULTS = array(
-	'sources'             => array( 'cycling-desk', 'currents', 'workflow-parsely' ),
+	'sources'             => array( 'foresight', 'currents' ),
 	'limit'               => 24,
 
 	/*

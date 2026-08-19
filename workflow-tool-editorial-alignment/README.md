@@ -5,7 +5,7 @@ AI-powered editorial compliance validation for WordPress content. Validates post
 ## Features
 
 ✅ **Gutenberg Guidelines** - Reads the canonical `wp_knowledge` guideline rows
-🤖 **AI-Powered Validation** - Uses OpenAI to evaluate content compliance  
+🤖 **AI-Powered Validation** - Uses the site's configured AI provider to evaluate content compliance  
 📊 **Detailed Feedback** - Get specific explanations and examples for failures  
 🔒 **Hard/Soft Modes** - Block transitions or allow with warnings  
 🎯 **Workflow Integration** - Available in transitions and command palette  
@@ -14,7 +14,7 @@ AI-powered editorial compliance validation for WordPress content. Validates post
 
 1. Requires **VIP Workflow** plugin
 2. Activate this plugin
-3. Configure OpenAI API key in **VIP Workflow → Settings**
+3. Configure an AI provider in **VIP Workflow → Settings**
 4. Configure content guidelines in Gutenberg/Core Guidelines
 
 ## Configuration
@@ -126,7 +126,7 @@ The checker returns:
 - WordPress VIP
 - VIP Workflow plugin
 - Gutenberg/Core Guidelines
-- OpenAI API key (GPT-4o-mini)
+- An AI provider configured in VIP Workflow
 
 ## Development
 
