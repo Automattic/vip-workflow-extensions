@@ -35,6 +35,7 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 | Extension | What it does | Also needs |
 | --- | --- | --- |
 | `workflow-agent-fact-check` | Stage-capable agent that flags unsupported or dubious factual claims in a post, writing editorial notes on the blocks where they appear. | An AI provider configured in VIP Workflow |
+| `workflow-agent-guideline-review` | Stage-capable agent that reviews a post against the site's own content guidelines and leaves a note on each block that departs from them. It never edits the copy. | An AI provider configured in VIP Workflow, plus content guidelines set up |
 | `workflow-agent-reformat-to-template` | Stage-capable agent that reformats a post's body to follow a configurable structural template. | An AI provider configured in VIP Workflow |
 | `workflow-assistant-hackernews` | Research assistant that searches Hacker News for tech discussions and articles during ideation. | Nothing — Hacker News's public search API needs no key |
 | `workflow-assistant-poems` | Research assistant that writes five short poems inspired by the ideation search terms, for creative inspiration. | Nothing — falls back to static poems if no AI provider is configured |
