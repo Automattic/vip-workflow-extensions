@@ -42,6 +42,7 @@ One directory per extension, at the root, alongside the README and licence. Addi
 | Extension | Origin |
 | --- | --- |
 | `workflow-discovery-foresight` | Built inside VIP Workflows, August 2026, as a demo for customers who subscribe to Foresight News. Still present in the plugin; this is a copy rather than a move. Needs a Foresight News subscription of its own to do anything — there is no bundled account and no sample data. |
+| `workflow-agent-guideline-review` | Built inside VIP Workflows, August 2026, for desks that keep written house guidelines and want the copy checked against those rather than against a generic style engine. Proposed for the product and kept out of it deliberately — it is a worked example of the stage-agent extension point, not something every site needs. |
 
 When an extension is added, record where it came from, in terms of the use case rather than the customer.
 
