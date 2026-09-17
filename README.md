@@ -1,4 +1,4 @@
-# VIP Workflow Extensions
+# VIP Workflows Extensions
 
 Example extensions for the **VIP Workflows** plugin from WordPress VIP.
 
