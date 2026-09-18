@@ -10,11 +10,11 @@ Each extension works, and was tested before it was included.  These are **not** 
 
 ## You need the VIP Workflows plugin
 
-None of these do anything on their own. Every extension here depends on the **VIP Workflows** plugin (`vip-workflow`) being installed and active.
+None of these do anything on their own. Every extension here depends on the **VIP Workflows** plugin (`vip-workflows`) being installed and active.
 
 VIP Workflows is not distributed from this repository.
 
-Each extension declares the dependency with a `Requires Plugins: vip-workflow` header. Some extensions need more than core — a third-party API key, or another extension. Each one says so in its own header comment.
+Each extension declares the dependency with a `Requires Plugins: vip-workflows` header. Some extensions need more than core — a third-party API key, or another extension. Each one says so in its own header comment.
 
 ## Layout
 
@@ -34,17 +34,17 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 
 | Extension | What it does | Also needs |
 | --- | --- | --- |
-| `workflow-agent-fact-check` | Stage-capable agent that flags unsupported or dubious factual claims in a post, writing editorial notes on the blocks where they appear. | An AI provider configured in VIP Workflow |
-| `workflow-agent-guideline-review` | Stage-capable agent that reviews a post against the site's own content guidelines and leaves a note on each block that departs from them. It never edits the copy. | An AI provider configured in VIP Workflow, plus content guidelines set up |
-| `workflow-agent-reformat-to-template` | Stage-capable agent that reformats a post's body to follow a configurable structural template. | An AI provider configured in VIP Workflow |
+| `workflow-agent-fact-check` | Stage-capable agent that flags unsupported or dubious factual claims in a post, writing editorial notes on the blocks where they appear. | An AI provider configured in VIP Workflows |
+| `workflow-agent-guideline-review` | Stage-capable agent that reviews a post against the site's own content guidelines and leaves a note on each block that departs from them. It never edits the copy. | An AI provider configured in VIP Workflows, plus content guidelines set up |
+| `workflow-agent-reformat-to-template` | Stage-capable agent that reformats a post's body to follow a configurable structural template. | An AI provider configured in VIP Workflows |
 | `workflow-assistant-hackernews` | Research assistant that searches Hacker News for tech discussions and articles during ideation. | Nothing — Hacker News's public search API needs no key |
 | `workflow-assistant-poems` | Research assistant that writes five short poems inspired by the ideation search terms, for creative inspiration. | Nothing — falls back to static poems if no AI provider is configured |
-| `workflow-channel-ntfy` (Workflow Ntfy Channel) | Notification channel that pushes VIP Workflow notifications to phones and desktops via ntfy.sh, with support for multiple topics. | Nothing — ntfy.sh is free; a self-hosted server is optional |
+| `workflow-channel-ntfy` (Workflow Ntfy Channel) | Notification channel that pushes VIP Workflows notifications to phones and desktops via ntfy.sh, with support for multiple topics. | Nothing — ntfy.sh is free; a self-hosted server is optional |
 | `workflow-discovery-currents` | Story discovery provider for Currents API news — breaking and recent coverage across categories, regions and languages. | Your own Currents API key |
 | `workflow-discovery-foresight` | Story discovery from Foresight News — events, diary dates, and scheduled announcements — with a research assistant that composes ideation prompts from them. | Your own Foresight News subscription |
 | `workflow-discovery-stream` | Merges every other registered discovery provider into one feed, ranked by how comparable past coverage performed. | At least one other discovery provider registered |
-| `workflow-tool-editorial-alignment` (Workflow Editorial Alignment Checker) | Validates content against the site's Gutenberg/Core content guidelines, in soft (warn) or hard (block) mode. | An AI provider configured in VIP Workflow, plus content guidelines set up |
-| `workflow-tool-excerpt-generator` (Workflow Excerpt Generator) | Generates a post excerpt from its content, with configurable length, tone, and prompt. | An AI provider configured in VIP Workflow |
+| `workflow-tool-editorial-alignment` (Workflow Editorial Alignment Checker) | Validates content against the site's Gutenberg/Core content guidelines, in soft (warn) or hard (block) mode. | An AI provider configured in VIP Workflows, plus content guidelines set up |
+| `workflow-tool-excerpt-generator` (Workflow Excerpt Generator) | Generates a post excerpt from its content, with configurable length, tone, and prompt. | An AI provider configured in VIP Workflows |
 | `workflow-tool-minimum-pins` (Workflow Minimum Pins) | Phase transition tool requiring a minimum number of pinned research sources before an ideation project can leave that phase. | Nothing |
 
 Discovery providers and AI-powered agents and tools need a subscription, API key, or AI provider of your own — there is no bundled account and no sample data. Without one they authenticate, fail, and return nothing (or, for tools, report that AI generation is not configured).
@@ -56,7 +56,7 @@ Build it wherever you normally build things, and submit it here once it works.
 What a submission needs:
 
 - Self-contained in its own directory, so it can be copied out on its own. No shared library at the root, no requiring files from a sibling extension.
-- A plugin header declaring `Requires Plugins: vip-workflow`, plus anything else it depends on — a third-party subscription, an API key, a particular WordPress version.
+- A plugin header declaring `Requires Plugins: vip-workflows`, plus anything else it depends on — a third-party subscription, an API key, a particular WordPress version.
 - A header comment explaining what the extension is for and what problem prompted it. The reasoning is the part worth reading and the part that goes missing first.
 - A row in the table above, so the next person can find it.
 

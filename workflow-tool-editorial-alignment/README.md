@@ -12,9 +12,9 @@ AI-powered editorial compliance validation for WordPress content. Validates post
 
 ## Installation
 
-1. Requires **VIP Workflow** plugin
+1. Requires **VIP Workflows** plugin
 2. Activate this plugin
-3. Configure an AI provider in **VIP Workflow → Settings**
+3. Configure an AI provider in **Workflows → Settings**
 4. Configure content guidelines in Gutenberg/Core Guidelines
 
 ## Configuration
@@ -124,9 +124,9 @@ The checker returns:
 ## Requirements
 
 - WordPress VIP
-- VIP Workflow plugin
+- VIP Workflows plugin
 - Gutenberg/Core Guidelines
-- An AI provider configured in VIP Workflow
+- An AI provider configured in VIP Workflows
 
 ## Development
 

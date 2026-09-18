@@ -1,6 +1,6 @@
 # Workflow Ntfy Channel
 
-Push notification support for VIP Workflow using ntfy.sh. Send workflow notifications to mobile devices, desktop apps, or any ntfy-compatible client.
+Push notification support for VIP Workflows using ntfy.sh. Send workflow notifications to mobile devices, desktop apps, or any ntfy-compatible client.
 
 ## Features
 
@@ -11,13 +11,13 @@ Push notification support for VIP Workflow using ntfy.sh. Send workflow notifica
 
 ## Installation
 
-1. Requires **VIP Workflow** plugin
+1. Requires **VIP Workflows** plugin
 2. Activate this plugin
-3. Configure destinations in **VIP Workflow → Integrations → Channels**
+3. Configure destinations in **Workflows → Notifications → Channels**
 
 ## Configuration
 
-Navigate to **VIP Workflow → Integrations → Channels** to add ntfy destinations:
+Navigate to **Workflows → Notifications → Channels** to add ntfy destinations:
 
 **Each destination requires:**
 - **Name**: Descriptive label (e.g., "Mobile Alerts", "Team Channel")
@@ -76,7 +76,7 @@ POST /wp-json/workflow-ntfy/v1/destinations
 ## Requirements
 
 - WordPress VIP
-- VIP Workflow plugin
+- VIP Workflows plugin
 - ntfy.sh account or self-hosted ntfy server
 
 ## Development

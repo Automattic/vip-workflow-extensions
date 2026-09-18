@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-tool-editorial-alignment
  *
  * @package WorkflowToolEditorialAlignment
@@ -26,6 +26,6 @@ require_once __DIR__ . '/includes/class-editorial-alignment-checker.php';
  * Register the Editorial Alignment Checker ability.
  *
  * The ability is registered with WordPress's Abilities API and will appear
- * in the VIP Workflow Tools tab on the Integrations page.
+ * on the VIP Workflows Tools screen.
  */
 add_action( 'wp_abilities_api_init', array( EditorialAlignmentChecker::class, 'register' ) );

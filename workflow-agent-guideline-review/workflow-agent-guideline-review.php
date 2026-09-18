@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-agent-guideline-review
  *
  * WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT
@@ -72,10 +72,10 @@ declare( strict_types=1 );
 
 namespace WorkflowAgentGuidelineReview;
 
-use VIPWorkflow\Abilities\Agents\StageAgent;
-use VIPWorkflow\Abilities\AiAvailability;
-use VIPWorkflow\Abilities\Availability;
-use VIPWorkflow\Integrations\GuidelineContextProvider;
+use VIPWorkflows\Abilities\Agents\StageAgent;
+use VIPWorkflows\Abilities\AiAvailability;
+use VIPWorkflows\Abilities\Availability;
+use VIPWorkflows\Integrations\GuidelineContextProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -116,8 +116,8 @@ const MAX_PASSES = 5;
  */
 const MAX_TOKENS = 7500;
 
-add_action( 'vip_workflow_register_abilities', __NAMESPACE__ . '\register' );
-add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
+add_action( 'vip_workflows_register_abilities', __NAMESPACE__ . '\register' );
+add_action( 'vip_workflows_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
 
 /**
  * Register the guideline-review stage agent ability.
@@ -125,16 +125,16 @@ add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_a
  * @return void
  */
 function register(): void {
-	if ( ! function_exists( 'vip_workflow_register_ability' ) || ! class_exists( StageAgent::class ) ) {
+	if ( ! function_exists( 'vip_workflows_register_ability' ) || ! class_exists( StageAgent::class ) ) {
 		return;
 	}
 
-	vip_workflow_register_ability(
+	vip_workflows_register_ability(
 		'workflow-agent-guideline-review/guideline-review',
 		array(
 			'label'               => __( 'Guideline Review', 'workflow-agent-guideline-review' ),
 			'description'         => __( 'Reviews the post against your content guidelines and leaves a note on each block that departs from them. Never edits the copy.', 'workflow-agent-guideline-review' ),
-			'category'            => 'vip-workflow',
+			'category'            => 'vip-workflows',
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'additionalProperties' => false,
@@ -248,7 +248,7 @@ function can_execute( array $input ): bool|\WP_Error {
 		);
 	}
 
-	$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
+	$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
 	if ( $permission_error ) {
 		return $permission_error;
 	}
@@ -480,7 +480,7 @@ function guideline_rules( int $post_id ) {
 	if ( ! class_exists( GuidelineContextProvider::class ) ) {
 		return new \WP_Error(
 			'guideline_review_no_provider',
-			__( 'Content guidelines are not available in this version of VIP Workflow, so there is nothing to review against.', 'workflow-agent-guideline-review' ),
+			__( 'Content guidelines are not available in this version of VIP Workflows, so there is nothing to review against.', 'workflow-agent-guideline-review' ),
 			array( 'status' => 400 )
 		);
 	}
