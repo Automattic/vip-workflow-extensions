@@ -28,7 +28,7 @@ None, and this should stay explicit in the README. Everything here is unsupporte
 
 - **No credentials, ever.** Not a real one, not a test one, not in a comment, not in a fixture, not in a commit that is later reverted. Extensions read keys from WordPress options or `wp-config.php` constants and fail loudly when they are not configured. Scan before committing.
 - **No customer names**, and nothing identifying who an extension was originally built for. Describe the use case instead: what the extension does and who it is useful to.
-- **Every extension declares `Requires Plugins: vip-workflows`.** WordPress 6.5 and later enforces it. Older versions activate the extension silently and it then does nothing visible, which reads as a broken extension rather than a missing dependency — so the header matters even though it is not universally honoured.
+- **Every extension declares `Requires Plugins: vip-workflows`.** WordPress 6.5 and later enforces it. Older versions activate the extension silently and it then does nothing visible, which reads as a broken extension rather than a missing dependency — so the header matters even though it is not universally honoured. The one exception is `typesafe-connector`: it only registers a connector with WordPress itself and any plugin can read it, so it does not need Workflows and does not declare the header.
 - **Keep each extension self-contained.** One directory, no shared library at the root, no cross-extension `require`. Someone should be able to copy a single directory out and have it work.
 - **Say what a thing is for in its header comment**, and what problem prompted it. The reasoning is the part worth reading and the first part to go missing.
 - **No build step.** These are plain PHP plugins that can be copied into `wp-content/plugins/` and activated. An extension needing a build pipeline needs a different home.
@@ -43,6 +43,8 @@ One directory per extension, at the root, alongside the README and licence. Addi
 | --- | --- |
 | `workflow-discovery-foresight` | Built inside VIP Workflows, August 2026, as a demo for customers who subscribe to Foresight News. Still present in the plugin; this is a copy rather than a move. Needs a Foresight News subscription of its own to do anything — there is no bundled account and no sample data. |
 | `workflow-agent-guideline-review` | Built inside VIP Workflows, August 2026, for desks that keep written house guidelines and want the copy checked against those rather than against a generic style engine. Proposed for the product and kept out of it deliberately — it is a worked example of the stage-agent extension point, not something every site needs. |
+| `typesafe-connector` | Built outside VIP Workflows, September 2026, so that plugins calling TypeSafe have one place to keep the API key instead of each inventing a settings screen. A plain Core Connectors registration. Needs a TypeSafe API key of your own. |
+| `workflow-typesafe-categorize` | Built outside VIP Workflows, September 2026, for desks that file posts into a fixed set of categories and want the choice made by a model that returns a typed answer and a probability rather than prose. A worked example of a command-palette tool and a stage agent sharing one classifier. Needs the connector above and a TypeSafe API key of your own. |
 
 When an extension is added, record where it came from, in terms of the use case rather than the customer.
 

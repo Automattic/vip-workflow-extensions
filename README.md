@@ -14,7 +14,7 @@ None of these do anything on their own. Every extension here depends on the **VI
 
 VIP Workflows is not distributed from this repository.
 
-Each extension declares the dependency with a `Requires Plugins: vip-workflows` header. Some extensions need more than core — a third-party API key, or another extension. Each one says so in its own header comment.
+Each extension declares the dependency with a `Requires Plugins: vip-workflows` header, except `typesafe-connector`, which is a plain WordPress Connectors registration and deliberately does not need it. Some extensions need more than core — a third-party API key, or another extension. Each one says so in its own header comment.
 
 ## Layout
 
@@ -34,6 +34,7 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 
 | Extension | What it does | Also needs |
 | --- | --- | --- |
+| `typesafe-connector` | Registers TypeSafe in Settings → Connectors, so its API key is stored, masked and overridable the way WordPress stores its AI provider keys. The one extension here that does not need VIP Workflows. | A TypeSafe API key, and WordPress 7.0 or later |
 | `workflow-agent-fact-check` | Stage-capable agent that flags unsupported or dubious factual claims in a post, writing editorial notes on the blocks where they appear. | An AI provider configured in VIP Workflows |
 | `workflow-agent-guideline-review` | Stage-capable agent that reviews a post against the site's own content guidelines and leaves a note on each block that departs from them. It never edits the copy. | An AI provider configured in VIP Workflows, plus content guidelines set up |
 | `workflow-agent-reformat-to-template` | Stage-capable agent that reformats a post's body to follow a configurable structural template. | An AI provider configured in VIP Workflows |
@@ -46,6 +47,7 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 | `workflow-tool-editorial-alignment` (Workflow Editorial Alignment Checker) | Validates content against the site's Gutenberg/Core content guidelines, in soft (warn) or hard (block) mode. | An AI provider configured in VIP Workflows, plus content guidelines set up |
 | `workflow-tool-excerpt-generator` (Workflow Excerpt Generator) | Generates a post excerpt from its content, with configurable length, tone, and prompt. | An AI provider configured in VIP Workflows |
 | `workflow-tool-minimum-pins` (Workflow Minimum Pins) | Phase transition tool requiring a minimum number of pinned research sources before an ideation project can leave that phase. | Nothing |
+| `workflow-typesafe-categorize` (Workflow TypeSafe Categorizer) | A tool that suggests categories for a post from its content, and a stage-capable agent that assigns them when TypeSafe is confident and otherwise leaves a note and sends the post to a person. | The `typesafe-connector` extension and a TypeSafe API key |
 
 Discovery providers and AI-powered agents and tools need a subscription, API key, or AI provider of your own — there is no bundled account and no sample data. Without one they authenticate, fail, and return nothing (or, for tools, report that AI generation is not configured).
 
