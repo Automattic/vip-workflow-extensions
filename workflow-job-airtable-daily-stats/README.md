@@ -1,5 +1,7 @@
 # Workflow Airtable Daily Stats
 
+> **Not compatible with current VIP Workflows.** This extension registers with the Jobs framework (the `vip_workflow_register_jobs` action, the Job Scheduler and the Integrations → Jobs screen), which current versions of VIP Workflows no longer include. Nothing here runs against them. It is kept, unchanged, as a worked example of the old Job extension pattern, and its code and instructions below still use the old naming.
+
 Sync daily post statistics to Airtable. Automatically tracks post counts by blueprint and status.
 
 ## Features

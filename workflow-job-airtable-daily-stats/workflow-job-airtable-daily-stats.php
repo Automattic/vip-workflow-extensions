@@ -5,8 +5,12 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-job-airtable
+ *
+ * NOT COMPATIBLE WITH CURRENT VIP WORKFLOWS
+ * -----------------------------------------
+ * This extension registers with the Jobs framework (the vip_workflow_register_jobs action, the Job Scheduler and the Integrations > Jobs screen). Current versions of VIP Workflows no longer include that framework, so the action never fires and this plugin does nothing. It is kept as a worked example of the old Job extension pattern, unchanged, and has not been migrated to the vip-workflows naming.
  *
  * @package WorkflowJobAirtable
  */
