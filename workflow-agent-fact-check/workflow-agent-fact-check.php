@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-agent-fact-check
  *
  * @package WorkflowAgentFactCheck
@@ -15,9 +15,9 @@ declare( strict_types=1 );
 
 namespace WorkflowAgentFactCheck;
 
-use VIPWorkflow\Abilities\Agents\StageAgent;
-use VIPWorkflow\Abilities\AiAvailability;
-use VIPWorkflow\Abilities\Availability;
+use VIPWorkflows\Abilities\Agents\StageAgent;
+use VIPWorkflows\Abilities\AiAvailability;
+use VIPWorkflows\Abilities\Availability;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,8 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 const NOTE_MARKER = '_vip_factcheck_agent';
 
-add_action( 'vip_workflow_register_abilities', __NAMESPACE__ . '\register' );
-add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
+add_action( 'vip_workflows_register_abilities', __NAMESPACE__ . '\register' );
+add_action( 'vip_workflows_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
 
 /**
  * Register the fact-check stage agent ability.
@@ -38,16 +38,16 @@ add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_a
  * @return void
  */
 function register(): void {
-	if ( ! function_exists( 'vip_workflow_register_ability' ) || ! class_exists( StageAgent::class ) ) {
+	if ( ! function_exists( 'vip_workflows_register_ability' ) || ! class_exists( StageAgent::class ) ) {
 		return;
 	}
 
-	vip_workflow_register_ability(
+	vip_workflows_register_ability(
 		'workflow-agent-fact-check/fact-check',
 		array(
 			'label'               => __( 'Fact Check', 'workflow-agent-fact-check' ),
 			'description'         => __( 'Flags unsupported or dubious factual claims by writing editorial notes on the blocks where they appear.', 'workflow-agent-fact-check' ),
-			'category'            => 'vip-workflow',
+			'category'            => 'vip-workflows',
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'additionalProperties' => false,
@@ -462,7 +462,7 @@ function can_execute( array $input ): bool|\WP_Error {
 		);
 	}
 
-	$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
+	$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
 	if ( $permission_error ) {
 		return $permission_error;
 	}

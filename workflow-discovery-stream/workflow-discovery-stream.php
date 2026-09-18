@@ -5,7 +5,7 @@
  * Version: 0.1.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com/
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-discovery-stream
  *
  * WHAT THIS IS
@@ -36,7 +36,7 @@ declare( strict_types=1 );
 
 namespace WorkflowDiscoveryStream;
 
-use VIPWorkflow\Discovery\DiscoveryProviderRegistry;
+use VIPWorkflows\Discovery\DiscoveryProviderRegistry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -90,7 +90,7 @@ function config(): array {
 	return (array) apply_filters( 'vip_workflow_stream_config', $config );
 }
 
-add_action( 'vip_workflow_register_discovery_providers', __NAMESPACE__ . '\register_provider', 20 );
+add_action( 'vip_workflows_register_discovery_providers', __NAMESPACE__ . '\register_provider', 20 );
 
 /*
  * Everything off this stream is wire copy, so the sequence is known before the
@@ -129,7 +129,7 @@ function wire_copy_sequence( int $blueprint_id, string $slug ): int {
  * Priority 20 puts this after the Parse.ly decorator, which attaches scores at
  * the default 10. Ranking has to see them.
  */
-add_filter( 'vip_workflow_discovery_prompts', array( StreamMerger::class, 'rank' ), 20 );
+add_filter( 'vip_workflows_discovery_prompts', array( StreamMerger::class, 'rank' ), 20 );
 
 /**
  * Register the stream, and keep the registry for later.
@@ -185,7 +185,7 @@ function registry(): DiscoveryProviderRegistry {
  *
  * The stream holds no credentials of its own, so it has no requirement to
  * report. Its sources report theirs on their own cards, and repeating them here
- * would double every notice on the Integrations page.
+ * would double every notice on the Agents page.
  *
  * @return bool
  */

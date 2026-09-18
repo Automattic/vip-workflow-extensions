@@ -9,14 +9,14 @@ declare( strict_types=1 );
 
 namespace WorkflowToolEditorialAlignment;
 
-use VIPWorkflow\AI\AiInference;
-use VIPWorkflow\Abilities\AiAvailability;
-use VIPWorkflow\Abilities\Availability;
-use VIPWorkflow\Integrations\LlmJsonGenerator;
-use VIPWorkflow\Integrations\LlmTextGenerator;
+use VIPWorkflows\AI\AiInference;
+use VIPWorkflows\Abilities\AiAvailability;
+use VIPWorkflows\Abilities\Availability;
+use VIPWorkflows\Integrations\LlmJsonGenerator;
+use VIPWorkflows\Integrations\LlmTextGenerator;
 
 /**
- * AI-powered editorial alignment validator using the AI provider configured in VIP Workflow.
+ * AI-powered editorial alignment validator using the AI provider configured in VIP Workflows.
  */
 class EditorialAlignmentChecker {
 
@@ -44,19 +44,19 @@ Respond in JSON format:
 	 * Register the ability with WordPress.
 	 */
 	public static function register(): void {
-		// Registered through the VIP Workflow wrapper, not core's
+		// Registered through the VIP Workflows wrapper, not core's
 		// wp_register_ability(): only the wrapper sets ability_class, and only a
-		// VIPWorkflow\Abilities\Ability consults availability_callback.
-		if ( ! function_exists( 'vip_workflow_register_ability' ) ) {
+		// VIPWorkflows\Abilities\Ability consults availability_callback.
+		if ( ! function_exists( 'vip_workflows_register_ability' ) ) {
 			return;
 		}
 
-		vip_workflow_register_ability(
+		vip_workflows_register_ability(
 			'workflow-tool-editorial-alignment/editorial-alignment-checker',
 			array(
 				'label'               => __( 'Editorial Alignment Checker', 'workflow-tool-editorial-alignment' ),
 				'description'         => __( 'Validate content against the Gutenberg/Core content guidelines.', 'workflow-tool-editorial-alignment' ),
-				'category'            => 'vip-workflow',
+				'category'            => 'vip-workflows',
 				'input_schema'        => self::get_input_schema(),
 				'output_schema'       => self::get_output_schema(),
 				'execute_callback'    => array( self::class, 'execute' ),
@@ -210,7 +210,7 @@ Respond in JSON format:
 			);
 		}
 
-		$options = \VIPWorkflow\Abilities\AbilitySettings::get_instance()->get_options( 'workflow-tool-editorial-alignment/editorial-alignment-checker' );
+		$options = \VIPWorkflows\Abilities\AbilitySettings::get_instance()->get_options( 'workflow-tool-editorial-alignment/editorial-alignment-checker' );
 		$mode    = $options['validation_mode'] ?? 'soft';
 		$rules   = self::get_rules( (int) ( $input['post_id'] ?? 0 ) );
 
@@ -308,7 +308,7 @@ Respond in JSON format:
 		$all_passed = ( 0 === $failed );
 		$status     = $all_passed ? 'pass' : ( 'hard' === $mode ? 'fail' : 'warning' );
 
-		// Build summary and issues array for proper VIP Workflow display.
+		// Build summary and issues array for proper VIP Workflows display.
 		$summary = sprintf(
 			'%d of %d editorial rules passed.',
 			$passed,
@@ -428,7 +428,7 @@ Respond in JSON format:
 			 * at nor the fact that it stopped. LlmJsonGenerator reads the provider's
 			 * finish reason before parsing, so truncation is reported as truncation.
 			 */
-			// Use WordPress AI Client configured by VIP Workflow core.
+			// Use WordPress AI Client configured by VIP Workflows core.
 			$result = LlmJsonGenerator::generate(
 				\WordPress\AiClient\AiClient::prompt( $prompt )
 					->usingSystemInstruction( 'You are an expert editorial compliance reviewer. Be specific and constructive in your feedback.' )
@@ -472,11 +472,11 @@ Respond in JSON format:
 	 * @return array
 	 */
 	private static function get_rules( int $post_id = 0 ): array {
-		if ( ! class_exists( '\VIPWorkflow\Integrations\GuidelineContextProvider' ) ) {
+		if ( ! class_exists( '\VIPWorkflows\Integrations\GuidelineContextProvider' ) ) {
 			return array();
 		}
 
-		return \VIPWorkflow\Integrations\GuidelineContextProvider::get_editorial_alignment_rules( $post_id );
+		return \VIPWorkflows\Integrations\GuidelineContextProvider::get_editorial_alignment_rules( $post_id );
 	}
 
 	/**
@@ -497,7 +497,7 @@ Respond in JSON format:
 			);
 		}
 
-		$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
+		$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
 		if ( $permission_error ) {
 			return $permission_error;
 		}

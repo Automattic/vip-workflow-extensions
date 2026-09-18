@@ -1,6 +1,6 @@
 # Workflow Excerpt Generator
 
-AI-powered excerpt generation using the AI provider configured in VIP Workflow. Automatically generate post excerpts from content with configurable style and length.
+AI-powered excerpt generation using the AI provider configured in VIP Workflows. Automatically generate post excerpts from content with configurable style and length.
 
 ## Features
 
@@ -12,15 +12,15 @@ AI-powered excerpt generation using the AI provider configured in VIP Workflow. 
 
 ## Installation
 
-1. Requires **VIP Workflow** plugin
+1. Requires **VIP Workflows** plugin
 2. Activate this plugin
-3. Configure an AI provider in **VIP Workflow → Settings**
+3. Configure an AI provider in **Workflows → Settings**
 
 ## Configuration
 
 **AI Settings:**
 
-Configure the AI provider in **VIP Workflow → Settings** — this tool generates through whichever provider and model are selected there.
+Configure the AI provider in **Workflows → Settings** — this tool generates through whichever provider and model are selected there.
 
 **Optional Customization:**
 
@@ -134,8 +134,8 @@ POST /wp-json/wp-abilities-api/v1/abilities/workflow-tool-excerpt/excerpt-genera
 ## Requirements
 
 - WordPress VIP
-- VIP Workflow plugin
-- An AI provider configured in VIP Workflow
+- VIP Workflows plugin
+- An AI provider configured in VIP Workflows
 
 ## Development
 

@@ -109,7 +109,7 @@ class StreamMerger {
 	 * down with it — the whole value of merging is that the reader still gets
 	 * everything else.
 	 *
-	 * @param \VIPWorkflow\Discovery\DiscoveryProviderRegistry $registry Registry instance.
+	 * @param \VIPWorkflows\Discovery\DiscoveryProviderRegistry $registry Registry instance.
 	 * @param string                                           $slug     Provider slug.
 	 * @return array[] Raw prompts.
 	 */

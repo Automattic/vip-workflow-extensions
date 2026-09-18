@@ -12,8 +12,8 @@ declare( strict_types=1 );
 
 namespace WorkflowNtfy;
 
-use VIPWorkflow\Notifications\NotificationChannel;
-use VIPWorkflow\Notifications\Notification;
+use VIPWorkflows\Notifications\NotificationChannel;
+use VIPWorkflows\Notifications\Notification;
 use WP_Error;
 
 /**
@@ -139,13 +139,13 @@ class NtfyChannel extends NotificationChannel {
 		}
 
 		$headers = [
-			'Title'    => 'VIP Workflow: ' . ucfirst( $notification->type ),
+			'Title'    => 'VIP Workflows: ' . ucfirst( $notification->type ),
 			'Priority' => (string) $this->map_priority( $notification->severity ),
 			'Tags'     => $this->get_tags( $notification ),
 		];
 
 		// Add click action.
-		$click_url = admin_url( 'admin.php?page=vip-workflow' );
+		$click_url = admin_url( 'admin.php?page=vip-workflows' );
 		if ( $notification->post_id ) {
 			$edit_link = get_edit_post_link( $notification->post_id, 'raw' );
 			$click_url = empty( $edit_link ) ? $click_url : $edit_link;
@@ -186,7 +186,7 @@ class NtfyChannel extends NotificationChannel {
 		$notification->title    = __( 'Test Message', 'workflow-ntfy' );
 		$notification->message  = sprintf(
 			/* translators: %s: destination name */
-			__( 'VIP Workflow → %s is working!', 'workflow-ntfy' ),
+			__( 'VIP Workflows → %s is working!', 'workflow-ntfy' ),
 			$this->get_name()
 		);
 		$notification->icon     = '✅';

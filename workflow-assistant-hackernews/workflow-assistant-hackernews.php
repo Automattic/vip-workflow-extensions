@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-assistant-hackernews
  *
  * @package WorkflowAssistantHackerNews
@@ -25,11 +25,11 @@ add_action( 'wp_abilities_api_init', __NAMESPACE__ . '\register' );
  * Register the Hacker News assistant ability.
  */
 function register(): void {
-	if ( ! function_exists( 'vip_workflow_register_ability' ) ) {
+	if ( ! function_exists( 'vip_workflows_register_ability' ) ) {
 		return;
 	}
 
-	vip_workflow_register_ability(
+	vip_workflows_register_ability(
 		'workflow-assistant-hackernews/hackernews',
 		array(
 			'label'               => __( 'Hacker News', 'workflow-assistant-hackernews' ),
@@ -283,7 +283,7 @@ function fetch_article_content( string $url ): array {
 		array(
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- editor-initiated ideation assistant request expected to take time.
 			'timeout'    => 8,
-			'user-agent' => 'Mozilla/5.0 (compatible; VIPWorkflow/1.0)',
+			'user-agent' => 'Mozilla/5.0 (compatible; VIPWorkflows/1.0)',
 		) 
 	);
 

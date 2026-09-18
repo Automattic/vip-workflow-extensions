@@ -108,7 +108,7 @@ function NtfyChannelSettings( { settings, onChange, channelId } ) {
 
 // Register the settings component for ntfy channels.
 addFilter(
-	'vipWorkflow.channelSettingsComponent',
+	'vipWorkflows.channelSettingsComponent',
 	'workflow-channel-ntfy',
 	( component, channelId, props ) => {
 		// Handle all ntfy channels (ntfy-default, ntfy-xxx, etc.)
@@ -120,7 +120,7 @@ addFilter(
 );
 
 // Register ntfy as a channel group with add/remove functionality.
-addFilter( 'vipWorkflow.channelGroups', 'workflow-channel-ntfy', ( groups ) => {
+addFilter( 'vipWorkflows.channelGroups', 'workflow-channel-ntfy', ( groups ) => {
 	return [
 		...groups,
 		{

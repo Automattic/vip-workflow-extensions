@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-agent-reformat-to-template
  *
  * @package WorkflowAgentReformatToTemplate
@@ -15,9 +15,9 @@ declare( strict_types=1 );
 
 namespace WorkflowAgentReformatToTemplate;
 
-use VIPWorkflow\Abilities\Agents\StageAgent;
-use VIPWorkflow\Abilities\AiAvailability;
-use VIPWorkflow\Abilities\Availability;
+use VIPWorkflows\Abilities\Agents\StageAgent;
+use VIPWorkflows\Abilities\AiAvailability;
+use VIPWorkflows\Abilities\Availability;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,8 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 const REFORMAT_DEFAULT_TEMPLATE = 'Short punchy paragraphs (1-2 sentences each), with an image after roughly every two paragraphs.';
 
-add_action( 'vip_workflow_register_abilities', __NAMESPACE__ . '\register' );
-add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
+add_action( 'vip_workflows_register_abilities', __NAMESPACE__ . '\register' );
+add_action( 'vip_workflows_register_assistant_meta', __NAMESPACE__ . '\register_agent_meta' );
 
 /**
  * Register the reformat-to-template stage agent ability.
@@ -34,16 +34,16 @@ add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_a
  * @return void
  */
 function register(): void {
-	if ( ! function_exists( 'vip_workflow_register_ability' ) || ! class_exists( StageAgent::class ) ) {
+	if ( ! function_exists( 'vip_workflows_register_ability' ) || ! class_exists( StageAgent::class ) ) {
 		return;
 	}
 
-	vip_workflow_register_ability(
+	vip_workflows_register_ability(
 		'workflow-agent-reformat-to-template/reformat-to-template',
 		array(
 			'label'               => __( 'Reformat to Template', 'workflow-agent-reformat-to-template' ),
 			'description'         => __( 'Reformats a post body to follow a fixed structural template, saving changes as a revision.', 'workflow-agent-reformat-to-template' ),
-			'category'            => 'vip-workflow',
+			'category'            => 'vip-workflows',
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'additionalProperties' => false,
@@ -239,7 +239,7 @@ function can_execute( array $input ): bool|\WP_Error {
 		);
 	}
 
-	$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
+	$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
 	if ( $permission_error ) {
 		return $permission_error;
 	}

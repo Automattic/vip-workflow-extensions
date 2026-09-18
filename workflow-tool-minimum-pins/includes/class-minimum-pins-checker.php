@@ -9,23 +9,23 @@ declare( strict_types=1 );
 
 namespace WorkflowToolMinimumPins;
 
-use VIPWorkflow\Abilities\AbilitySettings;
+use VIPWorkflows\Abilities\AbilitySettings;
 
 class MinimumPinsChecker {
 
 	private const DEFAULT_MINIMUM = 3;
 
 	public static function register(): void {
-		if ( ! function_exists( 'vip_workflow_register_ability' ) ) {
+		if ( ! function_exists( 'vip_workflows_register_ability' ) ) {
 			return;
 		}
 
-		vip_workflow_register_ability(
+		vip_workflows_register_ability(
 			'workflow-tool-minimum-pins/minimum-pins',
 			[
 				'label'               => __( 'Minimum Pins', 'workflow-tool-minimum-pins' ),
 				'description'         => __( 'Requires a minimum number of pinned research sources before transitioning out of ideation.', 'workflow-tool-minimum-pins' ),
-				'category'            => 'vip-workflow',
+				'category'            => 'vip-workflows',
 				'input_schema'        => self::get_input_schema(),
 				'output_schema'       => self::get_output_schema(),
 				'execute_callback'    => [ self::class, 'execute' ],
@@ -83,7 +83,7 @@ class MinimumPinsChecker {
 		 * identically, so the refusal cannot be used to enumerate which IDs are
 		 * real.
 		 */
-		$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['project_id'] );
+		$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['project_id'] );
 		if ( $permission_error ) {
 			return $permission_error;
 		}

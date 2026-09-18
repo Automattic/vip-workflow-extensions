@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name: Workflow Ntfy Channel
- * Description: Adds ntfy.sh push notification support to VIP Workflow. Supports multiple topics for different notification routing.
+ * Description: Adds ntfy.sh push notification support to VIP Workflows. Supports multiple topics for different notification routing.
  * Version: 2.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
  * License: GPL-2.0+
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  *
  * @package WorkflowNtfy
  */
@@ -32,12 +32,12 @@ define( 'WORKFLOW_NTFY_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WORKFLOW_NTFY_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Register ntfy channels with VIP Workflow.
+ * Register ntfy channels with VIP Workflows.
  *
  * Creates multiple channel instances - one per configured destination.
  */
 add_action(
-	'vip_workflow_register_notification_channels',
+	'vip_workflows_register_notification_channels',
 	function ( $dispatcher ) {
 		require_once WORKFLOW_NTFY_DIR . 'includes/class-ntfy-channel.php';
 
@@ -103,7 +103,7 @@ add_action(
 add_action(
 	'admin_enqueue_scripts',
 	function ( $hook ) {
-		if ( ! str_contains( $hook, 'vip-workflow-notifications' ) ) {
+		if ( ! str_contains( $hook, 'vip-workflows-notifications' ) ) {
 			return;
 		}
 
@@ -117,7 +117,7 @@ add_action(
 		wp_enqueue_script(
 			'workflow-channel-ntfy-admin',
 			WORKFLOW_NTFY_URL . 'build/admin.js',
-			array_merge( $asset['dependencies'], [ 'vip-workflow-admin' ] ),
+			array_merge( $asset['dependencies'], [ 'vip-workflows-admin' ] ),
 			$asset['version'],
 			true
 		);
@@ -128,7 +128,7 @@ add_action(
 			wp_enqueue_style(
 				'workflow-channel-ntfy-admin',
 				WORKFLOW_NTFY_URL . 'build/style-admin.css',
-				[ 'vip-workflow-admin' ],
+				[ 'vip-workflows-admin' ],
 				$asset['version']
 			);
 		}

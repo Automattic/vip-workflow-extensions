@@ -5,7 +5,7 @@
  * Version: 1.0.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com/
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-discovery-foresight
  *
  * @package WorkflowDiscoveryForesight
@@ -15,9 +15,9 @@ declare( strict_types=1 );
 
 namespace WorkflowDiscoveryForesight;
 
-use VIPWorkflow\Abilities\Availability;
-use VIPWorkflow\Abilities\RequirementFactory;
-use VIPWorkflow\Abilities\RequirementGroup;
+use VIPWorkflows\Abilities\Availability;
+use VIPWorkflows\Abilities\RequirementFactory;
+use VIPWorkflows\Abilities\RequirementGroup;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -54,7 +54,7 @@ function get_client(): ForesightClient {
 
 // ── Discovery Provider ───────────────────────────────────────────────
 
-add_action( 'vip_workflow_register_discovery_providers', __NAMESPACE__ . '\register_provider' );
+add_action( 'vip_workflows_register_discovery_providers', __NAMESPACE__ . '\register_provider' );
 
 function register_provider( $registry ): void {
 	$registry->register(
@@ -80,11 +80,11 @@ function register_provider( $registry ): void {
 add_action( 'wp_abilities_api_init', __NAMESPACE__ . '\register_ability' );
 
 function register_ability(): void {
-	if ( ! function_exists( 'vip_workflow_register_ability' ) ) {
+	if ( ! function_exists( 'vip_workflows_register_ability' ) ) {
 		return;
 	}
 
-	vip_workflow_register_ability(
+	vip_workflows_register_ability(
 		'workflow-discovery-foresight/foresight-research',
 		array(
 			'label'               => __( 'Foresight News', 'workflow-discovery-foresight' ),
@@ -129,7 +129,7 @@ function register_ability(): void {
 
 // ── Unified Assistants Tab ───────────────────────────────────────────
 
-add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_assistant_meta' );
+add_action( 'vip_workflows_register_assistant_meta', __NAMESPACE__ . '\register_assistant_meta' );
 
 function register_assistant_meta( $registry ): void {
 	$registry->register(

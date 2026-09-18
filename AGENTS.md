@@ -28,7 +28,7 @@ None, and this should stay explicit in the README. Everything here is unsupporte
 
 - **No credentials, ever.** Not a real one, not a test one, not in a comment, not in a fixture, not in a commit that is later reverted. Extensions read keys from WordPress options or `wp-config.php` constants and fail loudly when they are not configured. Scan before committing.
 - **No customer names**, and nothing identifying who an extension was originally built for. Describe the use case instead: what the extension does and who it is useful to.
-- **Every extension declares `Requires Plugins: vip-workflow`.** WordPress 6.5 and later enforces it. Older versions activate the extension silently and it then does nothing visible, which reads as a broken extension rather than a missing dependency — so the header matters even though it is not universally honoured.
+- **Every extension declares `Requires Plugins: vip-workflows`.** WordPress 6.5 and later enforces it. Older versions activate the extension silently and it then does nothing visible, which reads as a broken extension rather than a missing dependency — so the header matters even though it is not universally honoured.
 - **Keep each extension self-contained.** One directory, no shared library at the root, no cross-extension `require`. Someone should be able to copy a single directory out and have it work.
 - **Say what a thing is for in its header comment**, and what problem prompted it. The reasoning is the part worth reading and the first part to go missing.
 - **No build step.** These are plain PHP plugins that can be copied into `wp-content/plugins/` and activated. An extension needing a build pipeline needs a different home.

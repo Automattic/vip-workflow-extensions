@@ -9,13 +9,13 @@ declare( strict_types=1 );
 
 namespace WorkflowToolExcerpt;
 
-use VIPWorkflow\AI\AiInference;
-use VIPWorkflow\Abilities\AiAvailability;
-use VIPWorkflow\Abilities\Availability;
-use VIPWorkflow\Integrations\LlmTextGenerator;
+use VIPWorkflows\AI\AiInference;
+use VIPWorkflows\Abilities\AiAvailability;
+use VIPWorkflows\Abilities\Availability;
+use VIPWorkflows\Integrations\LlmTextGenerator;
 
 /**
- * AI-powered excerpt generator using the AI provider configured in VIP Workflow.
+ * AI-powered excerpt generator using the AI provider configured in VIP Workflows.
  */
 class ExcerptGenerator {
 
@@ -43,19 +43,19 @@ Excerpt:';
 	 * Register the ability with WordPress.
 	 */
 	public static function register(): void {
-		// Registered through the VIP Workflow wrapper, not core's
+		// Registered through the VIP Workflows wrapper, not core's
 		// wp_register_ability(): only the wrapper sets ability_class, and only a
-		// VIPWorkflow\Abilities\Ability consults availability_callback.
-		if ( ! function_exists( 'vip_workflow_register_ability' ) ) {
+		// VIPWorkflows\Abilities\Ability consults availability_callback.
+		if ( ! function_exists( 'vip_workflows_register_ability' ) ) {
 			return;
 		}
 
-		vip_workflow_register_ability(
+		vip_workflows_register_ability(
 			'workflow-tool-excerpt/excerpt-generator',
 			[
 				'label'               => __( 'Excerpt Generator', 'workflow-tool-excerpt' ),
 				'description'         => __( 'Generate a concise excerpt from post content using AI.', 'workflow-tool-excerpt' ),
-				'category'            => 'vip-workflow',
+				'category'            => 'vip-workflows',
 				'input_schema'        => self::get_input_schema(),
 				'output_schema'       => self::get_output_schema(),
 				'execute_callback'    => [ self::class, 'execute' ],
@@ -221,7 +221,7 @@ Excerpt:';
 			);
 		}
 
-		$settings   = \VIPWorkflow\Abilities\AbilitySettings::get_instance()->get_options( 'workflow-tool-excerpt/excerpt-generator' );
+		$settings   = \VIPWorkflows\Abilities\AbilitySettings::get_instance()->get_options( 'workflow-tool-excerpt/excerpt-generator' );
 		$max_length = $settings['max_length'] ?? 155;
 		$style      = $settings['style'] ?? 'informative';
 		$prompt     = $settings['prompt'] ?? self::DEFAULT_PROMPT;
@@ -323,7 +323,7 @@ Excerpt:';
 			 * roughly a fortieth of what the model spends reasoning before it writes the
 			 * line, so there was never an excerpt to trim.
 			 */
-			// Use WordPress AI Client configured by VIP Workflow core.
+			// Use WordPress AI Client configured by VIP Workflows core.
 			$excerpt = \WordPress\AiClient\AiClient::prompt( $prompt )
 				->usingSystemInstruction( 'You are an expert copywriter who writes concise, engaging meta descriptions.' )
 				->usingModel( $model )
@@ -364,7 +364,7 @@ Excerpt:';
 			);
 		}
 
-		$permission_error = \VIPWorkflow\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
+		$permission_error = \VIPWorkflows\Abilities\Tools\require_post_edit_permission( (int) $input['post_id'] );
 		if ( $permission_error ) {
 			return $permission_error;
 		}

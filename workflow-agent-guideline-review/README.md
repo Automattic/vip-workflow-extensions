@@ -35,7 +35,7 @@ The clean verdict is a random token minted per run and shown only in the agent's
 ## What it needs
 
 - The **VIP Workflows** plugin, active.
-- An **AI provider configured** in VIP Workflow. Without one the agent reports itself unavailable rather than failing when a post reaches the stage.
+- An **AI provider configured** in VIP Workflows. Without one the agent reports itself unavailable rather than failing when a post reaches the stage.
 - **Content guidelines set up** on the site. With none, every run is an error.
 
 Copy the directory into `wp-content/plugins/` and activate it. There is no build step and nothing to install.

@@ -5,7 +5,7 @@
  * Version: 0.1.0
  * Author: WordPress VIP
  * Author URI: https://wpvip.com/
- * Requires Plugins: vip-workflow
+ * Requires Plugins: vip-workflows
  * Text Domain: workflow-discovery-currents
  *
  * @package WorkflowDiscoveryCurrents
@@ -15,9 +15,9 @@ declare( strict_types=1 );
 
 namespace WorkflowDiscoveryCurrents;
 
-use VIPWorkflow\Abilities\Availability;
-use VIPWorkflow\Abilities\RequirementFactory;
-use VIPWorkflow\Abilities\RequirementGroup;
+use VIPWorkflows\Abilities\Availability;
+use VIPWorkflows\Abilities\RequirementFactory;
+use VIPWorkflows\Abilities\RequirementGroup;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -184,7 +184,7 @@ function resolve_key( string $setting_name, string $env_var_name, string $consta
 
 // ── Discovery Provider ───────────────────────────────────────────────
 
-add_action( 'vip_workflow_register_discovery_providers', __NAMESPACE__ . '\register_provider' );
+add_action( 'vip_workflows_register_discovery_providers', __NAMESPACE__ . '\register_provider' );
 
 /**
  * Register the discovery provider.
@@ -212,10 +212,10 @@ function register_provider( $registry ): void {
 
 // ── Unified Assistants Tab ───────────────────────────────────────────
 
-add_action( 'vip_workflow_register_assistant_meta', __NAMESPACE__ . '\register_assistant_meta' );
+add_action( 'vip_workflows_register_assistant_meta', __NAMESPACE__ . '\register_assistant_meta' );
 
 /**
- * Group this plugin's capabilities into one Integrations card.
+ * Group this plugin's capabilities into one Agents card.
  *
  * @param object $registry Assistant registry instance.
  */
