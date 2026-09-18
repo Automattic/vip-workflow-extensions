@@ -98,6 +98,12 @@ add_action( 'vip_workflows_register_discovery_providers', __NAMESPACE__ . '\regi
  * for the copytaste decision and the embargo, and end in Commission rather than
  * Write Draft.
  */
+/*
+ * NOTE: the current VIP Workflows plugin does not fire this filter. It comes from
+ * the sequence-aware ideation work, which is not in the plugin as it stands, so
+ * until that lands this wiring has no effect. The name is left as it was written
+ * rather than guessed at under the new prefix.
+ */
 add_filter( 'vip_workflow_discovery_sequence', __NAMESPACE__ . '\wire_copy_sequence', 10, 2 );
 
 /**
