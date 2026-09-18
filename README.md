@@ -1,4 +1,4 @@
-# VIP Workflow Extensions
+# VIP Workflows Extensions
 
 Example extensions for the **VIP Workflows** plugin from WordPress VIP.
 
@@ -43,7 +43,6 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 | `workflow-discovery-currents` | Story discovery provider for Currents API news — breaking and recent coverage across categories, regions and languages. | Your own Currents API key |
 | `workflow-discovery-foresight` | Story discovery from Foresight News — events, diary dates, and scheduled announcements — with a research assistant that composes ideation prompts from them. | Your own Foresight News subscription |
 | `workflow-discovery-stream` | Merges every other registered discovery provider into one feed, ranked by how comparable past coverage performed. | At least one other discovery provider registered |
-| `workflow-job-airtable-daily-stats` (Workflow Airtable Daily Stats) | Scheduled job that syncs daily post counts, by blueprint and status, to an Airtable base. | Your own Airtable API key, base, and table. Not compatible with current VIP Workflows, which no longer include the Jobs framework it registers with |
 | `workflow-tool-editorial-alignment` (Workflow Editorial Alignment Checker) | Validates content against the site's Gutenberg/Core content guidelines, in soft (warn) or hard (block) mode. | An AI provider configured in VIP Workflows, plus content guidelines set up |
 | `workflow-tool-excerpt-generator` (Workflow Excerpt Generator) | Generates a post excerpt from its content, with configurable length, tone, and prompt. | An AI provider configured in VIP Workflows |
 | `workflow-tool-minimum-pins` (Workflow Minimum Pins) | Phase transition tool requiring a minimum number of pinned research sources before an ideation project can leave that phase. | Nothing |
