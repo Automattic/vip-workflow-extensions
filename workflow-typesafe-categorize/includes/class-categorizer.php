@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace WorkflowTypeSafeCategorize;
 
+use TypeSafeConnector\Client;
 use VIPWorkflows\Abilities\AbilitySettings;
 
 /**
@@ -118,7 +119,7 @@ final class Categorizer {
 		}
 
 		// First pass: which single category is the article primarily about, and how clearly.
-		$first = TypeSafeClient::ask( $state, array( 'primary' => self::primary_question( $candidates ) ) );
+		$first = Client::ask( $state, array( 'primary' => self::primary_question( $candidates ) ) );
 		if ( is_wp_error( $first ) ) {
 			return $first;
 		}
@@ -135,7 +136,7 @@ final class Categorizer {
 		if ( self::primary_accepted( $primary, $settings ) && $settings['max_categories'] > 1 ) {
 			$shortlist = self::shortlist( $primary, $candidates );
 			if ( $shortlist ) {
-				$second = TypeSafeClient::ask( $state, self::secondary_questions( $shortlist ) );
+				$second = Client::ask( $state, self::secondary_questions( $shortlist ) );
 				if ( is_wp_error( $second ) ) {
 					return $second;
 				}

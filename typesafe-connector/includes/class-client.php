@@ -2,20 +2,23 @@
 /**
  * Minimal TypeSafe System One client.
  *
- * @package WorkflowTypeSafeCategorize
+ * @package TypeSafeConnector
  */
 
 declare( strict_types=1 );
 
-namespace WorkflowTypeSafeCategorize;
+namespace TypeSafeConnector;
 
 /**
  * Sends a batch of questions about some state to TypeSafe and returns the answers.
  *
- * Two things live here and nowhere else: where the key comes from, and what a
- * failed call looks like. The rest of the plugin deals only in answers.
+ * This is the one place in the repository that knows where the key comes from and what a
+ * failed call looks like. Extensions that need TypeSafe list `typesafe-connector` in their
+ * `Requires Plugins` header and call this class; they deal only in questions and answers.
+ * Every method is static and reads nothing but the environment and the connector, so a
+ * consumer can call it at any point after `plugins_loaded`.
  */
-final class TypeSafeClient {
+final class Client {
 
 	public const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
 
@@ -45,8 +48,8 @@ final class TypeSafeClient {
 	/**
 	 * Resolve the API key with the precedence Core uses: environment, constant, then the saved setting.
 	 *
-	 * The names come from the connector rather than being hardcoded, so this keeps working if
-	 * whichever plugin registered the connector changes them.
+	 * The names come from the registered connector rather than being hardcoded here, so this stays
+	 * correct if they ever change in one place.
 	 *
 	 * @return string The key, or '' when none is configured.
 	 */
@@ -104,7 +107,7 @@ final class TypeSafeClient {
 		if ( '' === $key ) {
 			return new \WP_Error(
 				'typesafe_not_configured',
-				__( 'TypeSafe has no API key. Add one in Settings → Connectors, or set TYPESAFE_API_KEY.', 'workflow-typesafe-categorize' )
+				__( 'TypeSafe has no API key. Add one in Settings → Connectors, or set TYPESAFE_API_KEY.', 'typesafe-connector' )
 			);
 		}
 
@@ -131,7 +134,7 @@ final class TypeSafeClient {
 				'typesafe_unreachable',
 				sprintf(
 					/* translators: %s: the transport error message. */
-					__( 'Could not reach TypeSafe: %s', 'workflow-typesafe-categorize' ),
+					__( 'Could not reach TypeSafe: %s', 'typesafe-connector' ),
 					$response->get_error_message()
 				)
 			);
@@ -143,14 +146,14 @@ final class TypeSafeClient {
 		if ( 401 === $status ) {
 			return new \WP_Error(
 				'typesafe_unauthorized',
-				__( 'TypeSafe rejected the API key. Check the key in Settings → Connectors, or the TYPESAFE_API_KEY value that overrides it.', 'workflow-typesafe-categorize' )
+				__( 'TypeSafe rejected the API key. Check the key in Settings → Connectors, or the TYPESAFE_API_KEY value that overrides it.', 'typesafe-connector' )
 			);
 		}
 
 		if ( 429 === $status || 529 === $status ) {
 			return new \WP_Error(
 				'typesafe_busy',
-				__( 'TypeSafe is rate limiting or overloaded right now. Try again in a moment.', 'workflow-typesafe-categorize' )
+				__( 'TypeSafe is rate limiting or overloaded right now. Try again in a moment.', 'typesafe-connector' )
 			);
 		}
 
@@ -159,7 +162,7 @@ final class TypeSafeClient {
 				'typesafe_invalid_request',
 				sprintf(
 					/* translators: %s: the validation message TypeSafe returned. */
-					__( 'TypeSafe could not process the request: %s', 'workflow-typesafe-categorize' ),
+					__( 'TypeSafe could not process the request: %s', 'typesafe-connector' ),
 					mb_substr( $body, 0, 300 )
 				)
 			);
@@ -170,7 +173,7 @@ final class TypeSafeClient {
 				'typesafe_http_error',
 				sprintf(
 					/* translators: %d: HTTP status code. */
-					__( 'TypeSafe returned an unexpected response (HTTP %d).', 'workflow-typesafe-categorize' ),
+					__( 'TypeSafe returned an unexpected response (HTTP %d).', 'typesafe-connector' ),
 					$status
 				)
 			);
@@ -180,9 +183,20 @@ final class TypeSafeClient {
 		if ( ! is_array( $decoded ) || ! is_array( $decoded['answers'] ?? null ) ) {
 			return new \WP_Error(
 				'typesafe_bad_response',
-				__( 'TypeSafe returned a response this extension could not read.', 'workflow-typesafe-categorize' )
+				__( 'TypeSafe returned a response the connector could not read.', 'typesafe-connector' )
 			);
 		}
+
+		/**
+		 * Fires after every successful request, with what TypeSafe reported it used.
+		 *
+		 * TypeSafe charges per input token and returns the count with every response, so this is how a caller
+		 * that wants to know what a check cost can find out, without the client keeping a tally of its own.
+		 *
+		 * @param array{input_tokens?: int, output_tokens?: int} $usage Usage as TypeSafe reported it, or empty.
+		 * @param string                                         $model The model that answered.
+		 */
+		do_action( 'typesafe_connector_usage', is_array( $decoded['usage'] ?? null ) ? $decoded['usage'] : array(), (string) ( $decoded['model'] ?? '' ) );
 
 		return $decoded['answers'];
 	}

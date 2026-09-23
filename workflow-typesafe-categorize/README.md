@@ -12,7 +12,7 @@ Choosing categories is a judgment with a closed set of answers. A text-generatio
 ## Requirements
 
 - The **VIP Workflows** plugin (the `Requires Plugins` header enforces this on WordPress 6.5 and later).
-- The **TypeSafe Connector** plugin from this repository, or any plugin that registers a `typesafe` connector. It is what stores the API key. WordPress 7.0 or later.
+- The **TypeSafe Connector** plugin from this repository (`Requires Plugins` names it). It stores the API key and holds the client that sends questions to TypeSafe. WordPress 7.0 or later.
 - A TypeSafe API key from the [TypeSafe console](https://console.typesafe.ai/settings/keys). None is bundled, and none is stored by this extension.
 
 Until the connector is active and a key is set, the tool and the agent show as unavailable and say which of the two is missing.

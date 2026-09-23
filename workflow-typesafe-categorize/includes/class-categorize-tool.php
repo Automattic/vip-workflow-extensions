@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace WorkflowTypeSafeCategorize;
 
+use TypeSafeConnector\Client;
 use VIPWorkflows\Abilities\Availability;
 use VIPWorkflows\Abilities\RequirementFactory;
 use VIPWorkflows\Abilities\RequirementGroup;
@@ -134,7 +135,7 @@ final class CategorizeTool {
 	public static function check_availability(): bool|Availability {
 		$sources = array( __( 'Categorize', 'workflow-typesafe-categorize' ) );
 
-		if ( ! TypeSafeClient::has_connector() ) {
+		if ( ! Client::has_connector() ) {
 			return Availability::unmet(
 				RequirementGroup::all(
 					RequirementFactory::dependency(
@@ -147,7 +148,7 @@ final class CategorizeTool {
 			);
 		}
 
-		if ( '' === TypeSafeClient::api_key() ) {
+		if ( '' === Client::api_key() ) {
 			return Availability::unmet(
 				RequirementGroup::all(
 					RequirementFactory::dependency(

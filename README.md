@@ -14,11 +14,11 @@ None of these do anything on their own. Every extension here depends on the **VI
 
 VIP Workflows is not distributed from this repository.
 
-Each extension declares the dependency with a `Requires Plugins: vip-workflows` header, except `typesafe-connector`, which is a plain WordPress Connectors registration and deliberately does not need it. Some extensions need more than core — a third-party API key, or another extension. Each one says so in its own header comment.
+Each extension declares the dependency with a `Requires Plugins: vip-workflows` header, except `typesafe-connector`, which knows nothing about workflows and deliberately does not need it. Some extensions need more than core — a third-party API key, or another plugin from this repository, which they name in the same header (for example `Requires Plugins: vip-workflows, typesafe-connector`). Each one says so in its own header comment.
 
 ## Layout
 
-One directory per extension, at the root, each a self-contained WordPress plugin:
+One directory per extension, at the root, each a WordPress plugin that needs only VIP Workflows and whatever its header names from this repository:
 
 ```
 vip-workflow-extensions/
@@ -28,13 +28,13 @@ vip-workflow-extensions/
 └── workflow-tool-excerpt-generator/
 ```
 
-To use one, copy its directory into `wp-content/plugins/` and activate it. There is no build step and nothing to install.
+To use one, copy its directory into `wp-content/plugins/` and activate it. There is no build step and nothing to install. If its header names other plugins from this repository, copy those directories too; WordPress will not activate it until they are active.
 
 ## What is here
 
 | Extension | What it does | Also needs |
 | --- | --- | --- |
-| `typesafe-connector` | Registers TypeSafe in Settings → Connectors, so its API key is stored, masked and overridable the way WordPress stores its AI provider keys. The one extension here that does not need VIP Workflows. | A TypeSafe API key, and WordPress 7.0 or later |
+| `typesafe-connector` | Registers TypeSafe in Settings → Connectors, so its API key is stored, masked and overridable the way WordPress stores its AI provider keys, and ships the one client every TypeSafe-powered extension here uses. The one extension here that does not need VIP Workflows. | A TypeSafe API key, and WordPress 7.0 or later |
 | `workflow-agent-fact-check` | Stage-capable agent that flags unsupported or dubious factual claims in a post, writing editorial notes on the blocks where they appear. | An AI provider configured in VIP Workflows |
 | `workflow-agent-guideline-review` | Stage-capable agent that reviews a post against the site's own content guidelines and leaves a note on each block that departs from them. It never edits the copy. | An AI provider configured in VIP Workflows, plus content guidelines set up |
 | `workflow-agent-reformat-to-template` | Stage-capable agent that reformats a post's body to follow a configurable structural template. | An AI provider configured in VIP Workflows |
@@ -48,6 +48,7 @@ To use one, copy its directory into `wp-content/plugins/` and activate it. There
 | `workflow-tool-excerpt-generator` (Workflow Excerpt Generator) | Generates a post excerpt from its content, with configurable length, tone, and prompt. | An AI provider configured in VIP Workflows |
 | `workflow-tool-minimum-pins` (Workflow Minimum Pins) | Phase transition tool requiring a minimum number of pinned research sources before an ideation project can leave that phase. | Nothing |
 | `workflow-typesafe-categorize` (Workflow TypeSafe Categorizer) | A tool that suggests categories for a post from its content, and a stage-capable agent that assigns them when TypeSafe is confident and otherwise leaves a note and sends the post to a person. | The `typesafe-connector` extension and a TypeSafe API key |
+| `workflow-typesafe-editorial-alignment` (Workflow TypeSafe Editorial Alignment) | The Editorial Alignment Checker with TypeSafe as the engine: splits the site's guidelines into individual rules and asks TypeSafe for one probability each, so a flag names the rule and a hard-mode gate blocks on a number. Sits beside `workflow-tool-editorial-alignment` rather than replacing it. | The `typesafe-connector` extension and a TypeSafe API key |
 
 Discovery providers and AI-powered agents and tools need a subscription, API key, or AI provider of your own — there is no bundled account and no sample data. Without one they authenticate, fail, and return nothing (or, for tools, report that AI generation is not configured).
 
@@ -57,8 +58,9 @@ Build it wherever you normally build things, and submit it here once it works.
 
 What a submission needs:
 
-- Self-contained in its own directory, so it can be copied out on its own. No shared library at the root, no requiring files from a sibling extension.
-- A plugin header declaring `Requires Plugins: vip-workflows`, plus anything else it depends on — a third-party subscription, an API key, a particular WordPress version.
+- Its own directory, holding all of its own code. No shared library at the root, and no `require` of a file from a sibling extension. Code an extension shares with another one goes in a plugin of its own, reached through that plugin's public API.
+- **Anything it needs besides VIP Workflows has to be in this repository too**, and named in its `Requires Plugins` header, so that copying the extension plus the directories it names is always enough. A service you subscribe to or a key you hold is fine; a plugin you would have to go and find somewhere else is not.
+- A plugin header declaring `Requires Plugins: vip-workflows` and any repository plugins it depends on, plus anything else it needs — a third-party subscription, an API key, a particular WordPress version.
 - A header comment explaining what the extension is for and what problem prompted it. The reasoning is the part worth reading and the part that goes missing first.
 - A row in the table above, so the next person can find it.
 

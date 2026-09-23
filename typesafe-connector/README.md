@@ -11,7 +11,7 @@ TypeSafe returns typed judgments (a choice, a probability, a score), not generat
 - WordPress 7.0 or later (the Connectors API). On older versions the plugin does nothing.
 - A TypeSafe API key from the [TypeSafe console](https://console.typesafe.ai/settings/keys).
 
-This plugin does **not** require VIP Workflows, and it does not depend on any other plugin in this repository. It is the one extension here without a `Requires Plugins: vip-workflows` header, on purpose: it is a Core registration that any plugin can build on.
+This plugin does **not** require VIP Workflows, and it does not depend on any other plugin in this repository. It is the one extension here without a `Requires Plugins: vip-workflows` header, on purpose: it knows nothing about workflows, and any plugin can build on it.
 
 ## Configuring the key
 
@@ -23,17 +23,65 @@ The key is resolved in this order, first match wins:
 
 On VIP, prefer the environment variable or the constant so the key never sits in the database. Nothing in this repository stores or ships a key.
 
-## Reading the key from another plugin
+## Using TypeSafe from another plugin
 
-Ask Core rather than hardcoding an option name:
+The plugin ships the client, so nothing else needs its own copy. List it in your plugin header:
 
-```php
-$connector = wp_get_connector( 'typesafe' );
-$auth      = $connector['authentication'] ?? array();
-// $auth['setting_name'] is the option name Core generated. Apply the precedence above.
+```
+Requires Plugins: vip-workflows, typesafe-connector
 ```
 
-The `workflow-typesafe-categorize` extension in this repository does exactly this.
+Then ask questions about some state:
+
+```php
+use TypeSafeConnector\Client;
+
+if ( ! Client::has_connector() ) { /* the connector is not registered */ }
+if ( '' === Client::api_key() )  { /* no key is set */ }
+
+$answers = Client::ask(
+	array( 'title' => $title, 'body' => $body ),
+	array(
+		'violates' => array(
+			'type'         => 'noul',
+			'instructions' => 'Does this article make an unsourced superlative claim?',
+			'criteria'     => array(
+				'true'  => 'It says something is the best, first or only without support.',
+				'false' => 'It makes no such claim.',
+			),
+		),
+	)
+);
+// $answers['violates']['noul'] is a probability between 0 and 1. On failure $answers is a WP_Error
+// whose message says what to do about it.
+```
+
+Independent questions over the same state belong in one `ask()` call: they run in parallel on TypeSafe's side.
+
+| Method | Returns |
+| --- | --- |
+| `Client::has_connector()` | Whether a `typesafe` connector is registered. Separate from having a key, because the fixes differ. |
+| `Client::api_key()` | The key with the precedence above, or `''`. Reads the environment only; no network request. |
+| `Client::ask( $state, $questions )` | Question id => answer, or a `WP_Error`. |
+
+### Finding out what a request cost
+
+TypeSafe charges per input token and reports the count with every response. The client passes it on through an action, so a caller can total it without the client keeping a tally:
+
+```php
+add_action(
+	'typesafe_connector_usage',
+	function ( array $usage, string $model ): void {
+		// $usage is array( 'input_tokens' => 296, 'output_tokens' => 20 ), or empty if TypeSafe sent none.
+	},
+	10,
+	2
+);
+```
+
+The client is deliberately small. It does not retry, cache or interpret answers; what counts as confident enough is the caller's decision.
+
+The `workflow-typesafe-categorize` and `workflow-typesafe-editorial-alignment` extensions in this repository are worked examples.
 
 ## What it registers
 

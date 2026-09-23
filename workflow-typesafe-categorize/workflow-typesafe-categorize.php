@@ -6,12 +6,12 @@
  * Author: WordPress VIP
  * Author URI: https://wpvip.com
  * License: GPL-2.0-or-later
- * Requires Plugins: vip-workflows
+ * Requires Plugins: vip-workflows, typesafe-connector
  * Text Domain: workflow-typesafe-categorize
  *
  * Why this exists: choosing categories is a judgment about text with a fixed set of possible answers, which is the job TypeSafe's models are built for. Asking a text-generation model to do it means parsing prose back into term IDs and hoping it did not invent a category. TypeSafe returns a typed answer and a probability for each option instead, so the code decides what is confident enough to write to a post, and the model cannot invent a category that does not exist.
  *
- * It needs the TypeSafe Connector plugin from this repository (or any plugin that registers a `typesafe` connector) for the API key. The key is read through the Connectors API, so nothing here stores or ships one.
+ * It needs the TypeSafe Connector plugin from this repository, which holds the API key and the client that talks to TypeSafe. Nothing here stores or ships a key.
  *
  * @package WorkflowTypeSafeCategorize
  */
@@ -24,7 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/includes/class-typesafe-client.php';
 require_once __DIR__ . '/includes/class-categorizer.php';
 require_once __DIR__ . '/includes/class-categorize-tool.php';
 require_once __DIR__ . '/includes/class-categorize-agent.php';
