@@ -1,0 +1,56 @@
+/* WordPress palette; status words remain visible independently of colors/icons. */
+.workflow-aeo-report .vip-workflows-results-modal__issue {
+ padding: 14px 16px;
+ border: 1px solid;
+ border-inline-start-width: 4px;
+ border-radius: 4px;
+ line-height: 1.6;
+}
+.workflow-aeo-report .vip-workflows-results-modal__issue--pass {
+ background: #edfaef;
+ border-color: #008a20;
+ color: #00450c;
+}
+.workflow-aeo-report .vip-workflows-results-modal__issue--fail {
+ background: #fcf0f1;
+ border-color: #d63638;
+ color: #8a2424;
+}
+.workflow-aeo-report .vip-workflows-results-modal__issue-rule,
+.workflow-aeo-report .vip-workflows-results-modal__issue-explanation {
+ color: inherit;
+ overflow-wrap: anywhere;
+}
+.workflow-aeo-report .vip-workflows-results-modal__issue-text {
+ padding: 14px 16px;
+ background: #f0f0f1;
+ border: 1px solid #8c8f94;
+ border-radius: 4px;
+ color: #2c3338;
+ line-height: 1.6;
+ overflow-wrap: anywhere;
+}
+.workflow-aeo-report__icon {
+ flex: 0 0 auto;
+ font-size: 18px;
+ line-height: 1.4;
+}
+@media (forced-colors: active) {
+ .workflow-aeo-report .vip-workflows-results-modal__issue,
+ .workflow-aeo-report .vip-workflows-results-modal__issue-text {
+  border-color: CanvasText;
+  background: Canvas;
+  color: CanvasText;
+ }
+}
+.workflow-aeo-report .workflow-aeo-report__native-icon { display: none; }
+.workflow-aeo-report .workflow-aeo-report__status {
+ color: inherit;
+ background: transparent;
+ border: 1px solid currentColor;
+ border-radius: 3px;
+ padding: 1px 6px;
+ font-size: 12px;
+ font-weight: 600;
+ line-height: 1.6;
+}
