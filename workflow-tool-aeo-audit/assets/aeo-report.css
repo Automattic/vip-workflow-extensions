@@ -30,11 +30,6 @@
  line-height: 1.6;
  overflow-wrap: anywhere;
 }
-.workflow-aeo-report__icon {
- flex: 0 0 auto;
- font-size: 18px;
- line-height: 1.4;
-}
 @media (forced-colors: active) {
  .workflow-aeo-report .vip-workflows-results-modal__issue,
  .workflow-aeo-report .vip-workflows-results-modal__issue-text {
@@ -43,8 +38,20 @@
   color: CanvasText;
  }
 }
-.workflow-aeo-report .workflow-aeo-report__native-icon { display: none; }
-.workflow-aeo-report .workflow-aeo-report__status {
+/* Status glyphs replace the native icon; the empty alt text keeps them out of the accessibility tree. */
+.workflow-aeo-report .vip-workflows-results-modal__issue--pass svg,
+.workflow-aeo-report .vip-workflows-results-modal__issue--fail svg { display: none; }
+.workflow-aeo-report .vip-workflows-results-modal__issue--pass .vip-workflows-results-modal__issue-rule::before,
+.workflow-aeo-report .vip-workflows-results-modal__issue--fail .vip-workflows-results-modal__issue-rule::before {
+ display: inline-block;
+ margin-inline-end: 8px;
+ font-size: 18px;
+ line-height: 1;
+ vertical-align: -2px;
+}
+.workflow-aeo-report .vip-workflows-results-modal__issue--pass .vip-workflows-results-modal__issue-rule::before { content: "\2705"; content: "\2705" / ""; }
+.workflow-aeo-report .vip-workflows-results-modal__issue--fail .vip-workflows-results-modal__issue-rule::before { content: "\274C"; content: "\274C" / ""; }
+.workflow-aeo-report .vip-workflows-results-modal__issue-rule + * {
  color: inherit;
  background: transparent;
  border: 1px solid currentColor;

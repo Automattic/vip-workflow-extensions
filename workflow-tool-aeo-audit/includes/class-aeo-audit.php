@@ -11,6 +11,7 @@ final class AEO_Audit extends Post_Tool {
 	private const HTML_LIMIT   = 2097152;
 	private const ROBOTS_LIMIT = 512000;
 	private const AGENTS       = array( 'Googlebot', 'bingbot', 'OAI-SearchBot' );
+	public const MODES         = array( 'saved-content', 'public' );
 
 	/** Register with the existing Workflows report and settings interfaces. */
 	public static function register(): void {
@@ -18,7 +19,7 @@ final class AEO_Audit extends Post_Tool {
 			self::ID,
 			array(
 				'label'               => __( 'AEO audit', 'workflow-tool-aeo-audit' ),
-				'description'         => __( 'Scores saved content and schema inputs when crawlability is ignored, including drafts. Otherwise audits public HTML, metadata and JSON-LD. Save edits before running.', 'workflow-tool-aeo-audit' ),
+				'description'         => __( 'Saved-content mode scores saved content, metadata and schema inputs, including drafts; without a schema provider such as Rank Math, schema fields are scored from WordPress post data. Public mode audits published HTML, crawler access and rendered JSON-LD. Save edits before running.', 'workflow-tool-aeo-audit' ),
 				'category'            => 'vip-workflows',
 				'input_schema'        => self::input_schema(),
 				'output_schema'       => array(
@@ -45,13 +46,15 @@ final class AEO_Audit extends Post_Tool {
 						'checked_at'             => array( 'type' => 'string' ),
 						'profile'                => array( 'type' => 'string' ),
 						'rubric_version'         => array( 'type' => 'string' ),
-						'audit_mode'             => array( 'type' => 'string' ),
+						'audit_mode'             => array(
+							'type' => 'string',
+							'enum' => self::MODES,
+						),
 						'public_output_verified' => array( 'type' => 'boolean' ),
 						'metrics'                => array( 'type' => 'object' ),
 						'breakdown'              => array( 'type' => 'object' ),
 						'schema_source'          => array( 'type' => 'string' ),
 						'schema_evidence'        => array( 'type' => 'string' ),
-						'demo_mode'              => array( 'type' => 'boolean' ),
 						'ignored_checks'         => array(
 							'type'  => 'array',
 							'items' => array( 'type' => 'string' ),
@@ -97,19 +100,19 @@ final class AEO_Audit extends Post_Tool {
 					'supports'            => array( 'workflow' ),
 					'transition_eligible' => false,
 					'settings_schema'     => array(
-						'ignore_crawl_restrictions' => array(
-							'type'        => 'boolean',
-							'default'     => false,
-							'label'       => __( 'Ignore crawlability and score saved content (demo/drafts)', 'workflow-tool-aeo-audit' ),
-							'description' => __( 'Score saved content, metadata and supported schema inputs without any public HTTP or preview request. Includes drafts. Public output remains unverified; actual crawler settings never change.', 'workflow-tool-aeo-audit' ),
+						'audit_mode' => array(
+							'type'        => 'string',
+							'enum'        => self::MODES,
+							'default'     => 'saved-content',
+							'label'       => __( 'Audit mode', 'workflow-tool-aeo-audit' ),
+							'description' => __( 'saved-content: score the saved post, including drafts, with no HTTP request; use this for publishing gates. public: audit the published page, robots.txt and rendered JSON-LD. Crawler settings are never changed.', 'workflow-tool-aeo-audit' ),
 						),
-						'min_score'                 => array(
+						'min_score'  => array(
 							'type'    => 'integer',
 							'default' => 80,
 							'minimum' => 0,
 							'maximum' => 100,
 							'label'   => __( 'Minimum AEO readiness score', 'workflow-tool-aeo-audit' ),
-
 						),
 					),
 					'annotations'         => array(
@@ -128,12 +131,12 @@ final class AEO_Audit extends Post_Tool {
 		if ( true !== $permission ) {
 			return $permission;
 		}
-		$post      = get_post( $input['post_id'] );
+		$post      = get_post( self::post_id( $input ) );
 		$options   = self::options(
 			self::ID,
 			array(
-				'min_score'                 => 80,
-				'ignore_crawl_restrictions' => false,
+				'min_score'  => 80,
+				'audit_mode' => 'saved-content',
 			)
 		);
 		$threshold = is_numeric( $options['min_score'] ) ? max( 0, min( 100, (int) $options['min_score'] ) ) : 80;
@@ -147,21 +150,22 @@ final class AEO_Audit extends Post_Tool {
 			'url'                    => $url,
 			'checked_at'             => gmdate( 'c' ),
 			'profile'                => 'post' === $post->post_type ? 'Article' : 'WebPage',
-			'demo_mode'              => true === $options['ignore_crawl_restrictions'],
 			'ignored_checks'         => array(),
 			'rubric_version'         => '1.0',
-			'audit_mode'             => 'public-html',
+			'audit_mode'             => 'public',
 			'public_output_verified' => false,
+			'breakdown'              => array(),
 			'checks'                 => array(),
 			'issues'                 => array(),
 			'blockers'               => array(),
 		);
-		if ( $report['demo_mode'] ) {
+		// Only an explicit public setting makes HTTP requests.
+		if ( 'public' !== $options['audit_mode'] ) {
 			return AEO_Content::audit( $post, $report );
 		}
 		$public = 'publish' === $post->post_status && '' === $post->post_password && in_array( $post->post_type, array( 'post', 'page' ), true );
-		self::check( $report, 'public-post', $public, 5, true, 'Use a published, password-free post or page. Drafts and previews cannot verify public crawlability.' );
-		self::check( $report, 'site-visibility', '1' === (string) get_option( 'blog_public' ), 5, true, 'WordPress discourages search indexing. Review Settings > Reading if this site is intended to be indexed.' );
+		self::check( $report, 'crawl', 'public-post', 'Published and public', $public, 5, 'The post is published and not password protected.', 'Use a published, password-free post or page. Drafts cannot be audited in public mode; use saved-content mode before publication.', true );
+		self::check( $report, 'crawl', 'site-visibility', 'Search engine visibility', '1' === (string) get_option( 'blog_public' ), 5, 'WordPress allows search engines to index this site.', 'WordPress discourages search indexing. Review Settings > Reading if this site is intended to be indexed.', true );
 		if ( ! $public ) {
 			return self::finish( $report );
 		}
@@ -173,7 +177,7 @@ final class AEO_Audit extends Post_Tool {
 		$body     = $http_ok ? wp_remote_retrieve_body( $response ) : '';
 		$type     = $http_ok ? strtolower( (string) wp_remote_retrieve_header( $response, 'content-type' ) ) : '';
 		$http_ok  = $http_ok && str_contains( $type, 'text/html' ) && '' !== trim( $body ) && strlen( $body ) <= self::HTML_LIMIT;
-		self::check( $report, 'public-http', $http_ok, 10, true, 'The anonymous permalink must return HTTP 200 HTML within 3 seconds and 2 MiB. Check redirects, login/edge restrictions, network failures and response size.' );
+		self::check( $report, 'crawl', 'public-http', 'Public page response', $http_ok, 10, 'The permalink returned HTTP 200 HTML to an anonymous request.', 'The anonymous permalink must return HTTP 200 HTML within 3 seconds and 2 MiB. Check redirects, login/edge restrictions, network failures and response size. WordPress safe HTTP refuses local and private-network hosts, so use saved-content mode there.', true );
 		if ( ! $http_ok ) {
 			return self::finish( $report );
 		}
@@ -200,7 +204,7 @@ final class AEO_Audit extends Post_Tool {
 				$restricted = true;
 			}
 		}
-		self::check( $report, 'index-and-snippets', ! $restricted, 10, true, 'Remove unintended noindex/none, nosnippet, max-snippet:0 or unavailable_after restrictions from robots meta or X-Robots-Tag. Expiry directives require manual review.' );
+		self::check( $report, 'crawl', 'index-and-snippets', 'Indexing and snippets allowed', ! $restricted, 10, 'No noindex, none, nosnippet, max-snippet:0 or unavailable_after restriction in robots meta or X-Robots-Tag.', 'Remove unintended noindex/none, nosnippet, max-snippet:0 or unavailable_after restrictions from robots meta or X-Robots-Tag. Expiry directives require manual review.', true );
 		$parts       = wp_parse_url( $url );
 		$robots_url  = $parts['scheme'] . '://' . $parts['host'] . ( isset( $parts['port'] ) ? ':' . $parts['port'] : '' ) . '/robots.txt';
 		$robots      = self::fetch( $robots_url, self::ROBOTS_LIMIT );
@@ -218,21 +222,24 @@ final class AEO_Audit extends Post_Tool {
 		}
 		self::check(
 			$report,
+			'crawl',
 			'robots-txt',
+			'robots.txt access',
 			$robots_known && empty( $blocked_agents ),
 			10,
-			true,
-			$robots_known ? 'robots.txt blocks this URL for: ' . implode( ', ', $blocked_agents ) . '. Review the relevant Allow/Disallow rules.' : 'Could not verify robots.txt (redirect, HTTP error, oversized response or unexpected HTML). Resolve it and rerun; unknown is not a pass.'
+			200 === $robots_code ? 'robots.txt allows ' . implode( ', ', self::AGENTS ) . ' to fetch this URL.' : 'No robots.txt file, so crawling is allowed by default.',
+			$robots_known ? 'robots.txt blocks this URL for: ' . implode( ', ', $blocked_agents ) . '. Review the relevant Allow/Disallow rules.' : 'Could not verify robots.txt (redirect, HTTP error, oversized response or unexpected HTML). Resolve it and rerun; unknown is not a pass.',
+			true
 		);
-		self::check( $report, 'html-title', '' !== $document['title'], 5, false, 'Populate the rendered HTML title through the theme or SEO plugin.' );
-		self::check( $report, 'meta-description', '' !== $document['description'], 5, false, 'Populate the rendered meta description through the SEO plugin.' );
+		self::check( $report, 'metadata', 'html-title', 'HTML title', '' !== $document['title'], 5, 'The rendered page has an HTML title.', 'Populate the rendered HTML title through the theme or SEO plugin.' );
+		self::check( $report, 'metadata', 'meta-description', 'Meta description', '' !== $document['description'], 5, 'The rendered page has a meta description.', 'Populate the rendered meta description through the SEO plugin.' );
 		$canonical_ok = 1 === count( $document['canonicals'] ) && AEO_Document::same_page( $document['canonicals'][0], $url );
-		self::check( $report, 'canonical', $canonical_ok, 10, ! empty( $document['canonicals'] ), 'Render exactly one canonical link pointing to this permalink. Review conflicting SEO plugins or a canonical pointing elsewhere.' );
+		self::check( $report, 'metadata', 'canonical', 'Canonical URL', $canonical_ok, 10, 'Exactly one canonical link points to this permalink.', 'Render exactly one canonical link pointing to this permalink. Review conflicting SEO plugins or a canonical pointing elsewhere.', ! empty( $document['canonicals'] ) );
 		$json_ok = $document['json_count'] > 0 && 0 === $document['json_errors'];
-		self::check( $report, 'json-ld', $json_ok, 5, true, 'Add valid JSON-LD and fix every malformed or empty JSON-LD script. This audit does not evaluate Microdata or RDFa.' );
+		self::check( $report, 'schema', 'json-ld', 'JSON-LD present and valid', $json_ok, 5, $document['json_count'] . ' JSON-LD script(s) parsed without errors.', 'Add valid JSON-LD and fix every malformed or empty JSON-LD script. This audit does not evaluate Microdata or RDFa.', true );
 		$article = 'Article' === $report['profile'];
 		$primary = AEO_Document::primaries( $document['nodes'], $url, $article );
-		self::check( $report, 'primary-schema', ! empty( $primary ), 5, true, 'Provide a schema.org ' . $report['profile'] . ' node tied to this permalink by url, @id or mainEntityOfPage. Related articles do not satisfy this check.' );
+		self::check( $report, 'schema', 'primary-schema', 'Primary ' . $report['profile'] . ' schema', ! empty( $primary ), 5, 'A schema.org ' . $report['profile'] . ' node is tied to this permalink.', 'Provide a schema.org ' . $report['profile'] . ' node tied to this permalink by url, @id or mainEntityOfPage. Related articles do not satisfy this check.', true );
 		$fields = $article ? array( 'headline', 'author', 'datePublished', 'dateModified', 'image', 'publisher' ) : array( 'name', 'description', 'url' );
 		foreach ( $fields as $field ) {
 			$valid = ! empty( $primary );
@@ -243,7 +250,7 @@ final class AEO_Audit extends Post_Tool {
 				}
 				$valid = $valid && $node_valid;
 			}
-			self::check( $report, 'schema-' . $field, $valid, $article ? 5 : 10, false, 'Populate a valid ' . $field . ' on every primary ' . $report['profile'] . ' node (including output from multiple plugins). Resolve local @id references and replace blank values or template placeholders.' );
+			self::check( $report, 'schema', 'schema-' . $field, 'Schema: ' . $field, $valid, $article ? 5 : 10, 'A valid ' . $field . ' is on every primary ' . $report['profile'] . ' node.', 'Populate a valid ' . $field . ' on every primary ' . $report['profile'] . ' node (including output from multiple plugins). Resolve local @id references and replace blank values or template placeholders.' );
 		}
 		$report['audit_complete'] = $robots_known;
 		return self::finish( $report );
@@ -273,38 +280,10 @@ final class AEO_Audit extends Post_Tool {
 		);
 	}
 
-	/** Add an inspectable weighted check and, on failure, an actionable finding. */
-	private static function check( array &$report, string $rule, bool $pass, int $weight, bool $blocking, string $message ): void {
-		$report['checks'][] = array(
-			'rule'     => $rule,
-			'status'   => $pass ? 'pass' : 'fail',
-			'points'   => $pass ? $weight : 0,
-			'possible' => $weight,
-			'blocking' => $blocking,
-		);
-		if ( $pass ) {
-			$report['score']   += $weight;
-			$report['issues'][] = array(
-				'rule'     => $rule,
-				'status'   => 'passed',
-				'severity' => 'info',
-				'message'  => 'This public-output check passed.',
-			);
-			return;
-		}
-		$report['issues'][] = array(
-			'rule'     => $rule,
-			'message'  => $message,
-			'severity' => $blocking ? 'error' : 'warning',
-			'status'   => 'failed',
-		);
-		if ( $blocking ) {
-			$report['blockers'][] = $rule;
-		}
-	}
-
 	/** A score cannot override a blocker or incomplete network inspection. */
 	private static function finish( array $report ): array {
+		// A fixed 100-point rubric: checks that never ran earn nothing.
+		$report['score']   = array_sum( array_column( $report['checks'], 'points' ) );
 		$report['status']  = $report['audit_complete'] && empty( $report['blockers'] ) && $report['score'] >= $report['threshold'] ? 'pass' : 'fail';
 		$report['summary'] = sprintf(
 			'AEO readiness: %d/100; threshold %d. %s %s Public HTML rubric v1.0; not a guarantee of indexing, rich results or AI citation.',

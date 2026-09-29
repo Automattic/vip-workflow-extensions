@@ -15,7 +15,7 @@ final class AEO_Settings {
 			self::ID,
 			array(
 				'label'               => __( 'AEO audit settings', 'workflow-tool-aeo-audit' ),
-				'description'         => __( 'Read or update only the AEO audit settings on the current site. Requires manage_options and a matching site_url. Omit settings to read. Demo mode changes the audit verdict only, never actual crawler access.', 'workflow-tool-aeo-audit' ),
+				'description'         => __( 'Read or update only the AEO audit settings on the current site. Requires manage_options and a matching site_url. Omit settings to read. audit_mode changes what the audit inspects, never actual crawler access.', 'workflow-tool-aeo-audit' ),
 				'category'            => 'vip-workflows',
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -32,7 +32,10 @@ final class AEO_Settings {
 									'minimum' => 0,
 									'maximum' => 100,
 								),
-								'ignore_crawl_restrictions' => array( 'type' => 'boolean' ),
+								'audit_mode'       => array(
+									'type' => 'string',
+									'enum' => AEO_Audit::MODES,
+								),
 								'enabled'          => array( 'type' => 'boolean' ),
 								'show_in_commands' => array( 'type' => 'boolean' ),
 							),
@@ -73,12 +76,17 @@ final class AEO_Settings {
 			return new \WP_Error( 'aeo_settings_wrong_site', 'site_url must match the current site.' );
 		}
 		$settings = $input['settings'] ?? array();
-		if ( ! is_array( $settings ) || array_diff( array_keys( $settings ), array( 'min_score', 'ignore_crawl_restrictions', 'enabled', 'show_in_commands' ) ) ) {
+		if ( ! is_array( $settings ) || array_diff( array_keys( $settings ), array( 'min_score', 'audit_mode', 'enabled', 'show_in_commands' ) ) ) {
 			return new \WP_Error( 'aeo_settings_invalid', 'Only the documented AEO settings may be updated.' );
 		}
 		foreach ( $settings as $key => $value ) {
-			if ( 'min_score' === $key ? ( ! is_int( $value ) || $value < 0 || $value > 100 ) : ! is_bool( $value ) ) {
-				return new \WP_Error( 'aeo_settings_invalid', 'Use an integer score from 0 to 100 and boolean toggles.' );
+			$valid = match ( $key ) {
+				'min_score' => is_int( $value ) && $value >= 0 && $value <= 100,
+				'audit_mode' => in_array( $value, AEO_Audit::MODES, true ),
+				default => is_bool( $value ),
+			};
+			if ( ! $valid ) {
+				return new \WP_Error( 'aeo_settings_invalid', 'Use an integer score from 0 to 100, audit_mode saved-content or public, and boolean toggles.' );
 			}
 		}
 		$manager = \VIPWorkflows\Abilities\AbilitySettings::get_instance();

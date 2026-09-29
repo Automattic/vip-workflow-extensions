@@ -35,6 +35,7 @@ namespace {
  function current_user_can(string $cap, int $id = 0): bool { return $GLOBALS['allowed']; }
  function get_post(int $id): ?WP_Post { return $id === 1 ? $GLOBALS['aeo_test_post'] : null; }
  function get_permalink(int $id): string { return $GLOBALS['url']; }
+ function get_sample_permalink(WP_Post $post): array { return ['https://example.test/%postname%/', $post->post_name]; }
  function get_option(string $key): mixed { return $GLOBALS['public']; }
  function home_url(string $path = '/'): string { return 'https://example.test/'; }
  function wp_parse_url(string $url, int $component = -1): mixed {
@@ -69,7 +70,7 @@ namespace {
  function run(): array|WP_Error { return Audit::execute(['post_id'=>1]); }
  function reset_case(): void {
   $GLOBALS['aeo_test_post'] = new WP_Post(); $GLOBALS['allowed'] = true; $GLOBALS['public'] = '1';
-  $GLOBALS['url'] = 'https://example.test/article/'; $GLOBALS['requests'] = []; Settings::$options = [];
+  $GLOBALS['url'] = 'https://example.test/article/'; $GLOBALS['requests'] = []; Settings::$options = ['audit_mode'=>'public'];
   $GLOBALS['schema'] = ['@context'=>'https://schema.org', '@graph'=>[
    ['@type'=>'BlogPosting', '@id'=>'https://example.test/article/#article', 'headline'=>'Example article', 'author'=>['@id'=>'#author'], 'publisher'=>['@id'=>'#publisher'], 'image'=>['@id'=>'#image'], 'datePublished'=>'2026-01-02T10:30:00Z', 'dateModified'=>'2026-01-03'],
    ['@type'=>'Person', '@id'=>'#author', 'name'=>'Example Author'],
@@ -83,10 +84,10 @@ namespace {
  check($result['score'] === 100 && $result['status'] === 'pass' && $result['audit_complete'], 'Complete article graph passes');
  check(count($requests) === 2 && $requests[0][1]['redirection'] === 0 && $requests[0][1]['cookies'] === [] && $requests[0][1]['limit_response_size'] === 2097153, 'Bounded anonymous nonredirecting requests');
  $public = '0'; check(run()['status'] === 'fail', 'Site privacy blocks despite 95 score');
- Settings::$options = ['min_score'=>0]; check(run()['status'] === 'fail', 'Threshold cannot override blockers');
+ Settings::$options['min_score'] = 0; check(run()['status'] === 'fail', 'Threshold cannot override blockers');
  reset_case(); $schema['@graph'][0]['headline'] = ''; $page_response = response(html($schema));
- Settings::$options = ['min_score'=>96]; check(run()['score'] === 95 && run()['status'] === 'fail', 'Configurable threshold enforced');
- Settings::$options = ['min_score'=>95]; check(run()['status'] === 'pass', 'Threshold equality passes');
+ Settings::$options['min_score'] = 96; check(run()['score'] === 95 && run()['status'] === 'fail', 'Configurable threshold enforced');
+ Settings::$options['min_score'] = 95; check(run()['status'] === 'pass', 'Threshold equality passes');
  reset_case(); $aeo_test_post->post_type = 'page'; $schema = ['@context'=>'https://schema.org', '@type'=>['WebPage','AboutPage'], '@id'=>'https://example.test/article/#webpage', 'name'=>'About us', 'description'=>'Our company', 'url'=>'https://example.test/article/']; $page_response = response(html($schema));
  check(run()['score'] === 100 && run()['profile'] === 'WebPage', 'Pages use their own profile');
  $schema['description'] = ''; $page_response = response(html($schema)); check(run()['score'] === 90, 'Page profile field weights');
@@ -135,14 +136,21 @@ namespace {
  reset_case(); $page_response['body'] = str_replace('rel="canonical" href="https://example.test/article/"', 'rel="canonical" href="https://example.test/other/"', $page_response['body']); check(in_array('canonical', run()['blockers'], true), 'Conflicting canonical blocks');
  reset_case(); $duplicate = $schema['@graph'][0]; $duplicate['image'] = ['@type'=>'ImageObject','url'=>'']; $schema['@graph'][] = $duplicate; $page_response = response(html($schema)); check(run()['score'] === 95, 'Incomplete duplicate primary schema is detected');
  reset_case(); $settings_class = \WorkflowToolAeoAudit\AEO_Settings::class;
- $result = $settings_class::execute(['site_url'=>'https://example.test','settings'=>['ignore_crawl_restrictions'=>true,'min_score'=>90,'enabled'=>true,'show_in_commands'=>true]]);
- check($result['updated'] && $result['settings']['options']['min_score'] === 90 && $result['settings']['options']['ignore_crawl_restrictions'], 'Admin can configure only AEO settings');
+ $result = $settings_class::execute(['site_url'=>'https://example.test','settings'=>['audit_mode'=>'saved-content','min_score'=>90,'enabled'=>true,'show_in_commands'=>true]]);
+ check($result['updated'] && $result['settings']['options']['min_score'] === 90 && 'saved-content' === $result['settings']['options']['audit_mode'], 'Admin can configure only AEO settings');
  check(Settings::$extra['unrelated-tool'] === ['enabled'=>false], 'Other tool settings preserved');
  check(!$settings_class::execute(['site_url'=>'https://example.test','settings'=>['min_score'=>90]])['updated'], 'Idempotent settings update');
  check(!$settings_class::execute(['site_url'=>'https://example.test'])['updated'], 'Settings read does not write');
  check($settings_class::execute(['site_url'=>'https://other.test']) instanceof WP_Error, 'Settings site guard');
- foreach ([['min_score'=>101],['min_score'=>'80'],['enabled'=>'yes'],['arbitrary_option'=>true]] as $bad) { check($settings_class::execute(['site_url'=>'https://example.test','settings'=>$bad]) instanceof WP_Error, 'Bad settings rejected'); }
+ foreach ([['min_score'=>101],['min_score'=>'80'],['enabled'=>'yes'],['arbitrary_option'=>true],['audit_mode'=>'demo'],['ignore_crawl_restrictions'=>true]] as $bad) { check($settings_class::execute(['site_url'=>'https://example.test','settings'=>$bad]) instanceof WP_Error, 'Bad settings rejected'); }
  Settings::$write_ok = false; check($settings_class::execute(['site_url'=>'https://example.test','settings'=>['min_score'=>50]]) instanceof WP_Error, 'Settings write failure reported');
  $allowed = false; check($settings_class::execute(['site_url'=>'https://example.test']) instanceof WP_Error, 'Settings require administrator');
+ foreach (['1', 1] as $ok_id) { reset_case(); check(!(Audit::execute(['post_id'=>$ok_id]) instanceof WP_Error), 'REST digit-string and integer post_id accepted'); }
+ foreach (['1.5', ' 1', '0', 0, -1, '1e1', null, [1]] as $bad_id) { reset_case(); check(Audit::execute(['post_id'=>$bad_id]) instanceof WP_Error && [] === $requests, 'Malformed post_id fails closed'); }
+ reset_case(); $result = run(); $rows = array_column(array_filter($result['issues'], fn($i) => isset($i['status'])), 'rule');
+ check(in_array('robots.txt access', $rows, true) && !in_array('robots-txt', $rows, true) && !in_array('This public-output check passed.', array_column($result['issues'], 'message'), true), 'Public rows use readable labels and evidence');
+ check(40 === $result['breakdown']['crawl']['possible'] && 20 === $result['breakdown']['metadata']['possible'] && 40 === $result['breakdown']['schema']['possible'], 'Public breakdown matches the documented rubric');
+ foreach (['Google', 'G', 'Googlebot-News'] as $token) { check(Document::robots_allowed("User-agent: {$token}\nDisallow: /", 'https://example.test/article/', 'Googlebot'), 'REP product token is exact, not a prefix: '.$token); }
+ check(!Document::robots_allowed("User-agent: GOOGLEBOT\nDisallow: /", 'https://example.test/article/', 'Googlebot'), 'REP product token is case-insensitive');
  echo "PASS: " . (int) $checks . " AEO checks\n";
 }

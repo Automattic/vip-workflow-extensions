@@ -1,37 +1,24 @@
-/* AEO-only presentation adapter for the native VIP Workflows report modal. */
+/*
+ * Tags the native VIP Workflows results modal when it shows this tool, so the
+ * scoped CSS can style it. Only direct children of <body> are watched (modals
+ * portal there), so typing in the editor never triggers this. Nothing inside
+ * the React-owned modal is changed beyond one class.
+ */
 (function () {
  'use strict';
- function enhance() {
-  document.querySelectorAll('.vip-workflows-results-modal').forEach(function (modal) {
+ function tag(root) {
+  if (!(root instanceof Element)) { return; }
+  var modals = root.matches('.vip-workflows-results-modal') ? [root] : root.querySelectorAll('.vip-workflows-results-modal');
+  Array.prototype.forEach.call(modals, function (modal) {
    var heading = modal.querySelector('.components-modal__header-heading');
-   if (!heading || heading.textContent.trim() !== window.workflowAeoReport?.label) { return; }
-   modal.classList.add('workflow-aeo-report');
-   modal.querySelectorAll('.vip-workflows-results-modal__issue--pass, .vip-workflows-results-modal__issue--fail').forEach(function (row) {
-    var rule = row.querySelector('.vip-workflows-results-modal__issue-rule');
-    var badge = rule && rule.nextElementSibling;
-    if (badge) { badge.classList.add('workflow-aeo-report__status'); }
-    var icon = row.querySelector('svg');
-    if (!icon) { return; }
-    icon.classList.add('workflow-aeo-report__native-icon');
-    var replacement = row.querySelector('.workflow-aeo-report__icon');
-    if (!replacement) {
-     replacement = document.createElement('span');
-     replacement.className = 'workflow-aeo-report__icon';
-     replacement.setAttribute('aria-hidden', 'true');
-     icon.insertAdjacentElement('beforebegin', replacement);
-    }
-    var glyph = row.classList.contains('vip-workflows-results-modal__issue--pass') ? '✅' : '❌';
-    if (replacement.textContent !== glyph) { replacement.textContent = glyph; }
-   });
+   var ours = !!heading && heading.textContent.trim() === window.workflowAeoReport?.label;
+   modal.classList.toggle('workflow-aeo-report', ours);
   });
  }
- var queued = false;
- var observer = new MutationObserver(function () {
-  if (queued) { return; }
-  queued = true;
-  requestAnimationFrame(function () { queued = false; enhance(); });
+ var observer = new MutationObserver(function (records) {
+  records.forEach(function (record) { record.addedNodes.forEach(tag); });
  });
- observer.observe(document.body, {childList:true, subtree:true});
- enhance();
- window.addEventListener('pagehide', function () { observer.disconnect(); }, {once:true});
+ observer.observe(document.body, {childList: true});
+ tag(document.body);
+ window.addEventListener('pagehide', function () { observer.disconnect(); }, {once: true});
 }());

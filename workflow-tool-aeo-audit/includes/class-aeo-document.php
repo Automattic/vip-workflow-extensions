@@ -86,22 +86,39 @@ final class AEO_Document {
 		return explode( '#', $candidate )[0] === explode( '#', $url )[0];
 	}
 
-	/** Find a primary node tied to this page, never a recommended/related article. */
-	public static function primaries( array $nodes, string $url, bool $article ): array {
-		$found = array();
+	/** Schema.org nodes of the profile type, whatever page they describe. */
+	public static function profile_nodes( array $nodes, bool $article ): array {
 		$types = $article ? array( 'Article', 'NewsArticle', 'BlogPosting', 'Report', 'ScholarlyArticle', 'TechArticle' ) : array( 'WebPage', 'AboutPage', 'ContactPage', 'CollectionPage', 'FAQPage', 'ItemPage', 'ProfilePage', 'QAPage' );
-		foreach ( $nodes as $node ) {
-			$node_types = array_map( static fn( $type ) => is_string( $type ) ? preg_replace( '~^https?://schema\.org/~', '', $type ) : '', (array) $node['@type'] );
-			if ( ! array_intersect( $types, $node_types ) ) {
-				continue;
-			}
+		return array_values(
+			array_filter(
+				$nodes,
+				static fn( $node ) => (bool) array_intersect( $types, array_map( static fn( $type ) => is_string( $type ) ? preg_replace( '~^https?://schema\.org/~', '', $type ) : '', (array) $node['@type'] ) )
+			)
+		);
+	}
+
+	/**
+	 * Find a primary node tied to this page, never a recommended/related article.
+	 *
+	 * @param array           $nodes   Parsed schema.org nodes.
+	 * @param string|string[] $urls    Every URL that identifies this page.
+	 * @param bool            $article Article profile rather than WebPage.
+	 */
+	public static function primaries( array $nodes, string|array $urls, bool $article ): array {
+		$found = array();
+		foreach ( self::profile_nodes( $nodes, $article ) as $node ) {
 			foreach ( array( $node['url'] ?? '', $node['@id'] ?? '', $node['mainEntityOfPage'] ?? '' ) as $identity ) {
 				if ( is_array( $identity ) ) {
 					$identity = $identity['@id'] ?? $identity['url'] ?? '';
 				}
-				if ( is_string( $identity ) && self::same_page( $identity, $url ) ) {
-					$found[] = $node;
-					break;
+				if ( ! is_string( $identity ) ) {
+					continue;
+				}
+				foreach ( (array) $urls as $url ) {
+					if ( self::same_page( $identity, $url ) ) {
+						$found[] = $node;
+						break 2;
+					}
 				}
 			}
 		}
@@ -202,7 +219,8 @@ final class AEO_Document {
 			foreach ( $group_agents as $name ) {
 				if ( '*' === $name ) {
 					$specificity = max( $specificity, 0 );
-				} elseif ( '' !== $name && str_starts_with( strtolower( $agent ), $name ) ) {
+				} elseif ( strtolower( $agent ) === $name ) {
+					// The robots spec matches the product token exactly, not as a prefix.
 					$specificity = max( $specificity, strlen( $name ) );
 				}
 			}

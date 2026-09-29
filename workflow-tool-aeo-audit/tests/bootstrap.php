@@ -22,4 +22,7 @@ check( isset( $GLOBALS['aeo_registered'][ $aeo_id ], $GLOBALS['aeo_registered'][
 check( false === $GLOBALS['aeo_registered'][ $aeo_id ]['meta']['transition_eligible'], 'Detailed report stays separate from transition verdicts' );
 check( $GLOBALS['aeo_registered'][ $aeo_id ]['meta']['show_in_commands'], 'Report available in command palette' );
 check( $GLOBALS['aeo_registered']['workflow-tool-aeo-audit/aeo-gate']['meta']['transition_eligible'], 'Gate is transition eligible' );
-echo "PASS: 5 standalone registration checks\n";
+check( false === $GLOBALS['aeo_registered']['workflow-tool-aeo-audit/aeo-gate']['input_schema']['additionalProperties'], 'Gate input rejects extra properties, as Workflows transition tools must' );
+check( array( 'saved-content', 'public' ) === $GLOBALS['aeo_registered'][ $aeo_id ]['meta']['settings_schema']['audit_mode']['enum'], 'Audit mode is a select, not a demo toggle' );
+check( ! isset( $GLOBALS['aeo_registered'][ $aeo_id ]['input_schema']['additionalProperties'] ), 'Report input accepts the options the editor sends alongside post_id' );
+echo "PASS: 8 standalone registration checks\n";

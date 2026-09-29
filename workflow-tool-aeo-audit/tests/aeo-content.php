@@ -8,7 +8,8 @@ namespace RankMath {
   public static string $description = '';
   public static bool $throw = false;
   public static function is_module_active(string $module): bool { return self::$active; }
-  public static function replace_seo_fields(string $field, \WP_Post $aeo_test_post): string { if(self::$throw) { throw new \RuntimeException('secret'); } return '%seo_title%' === $field ? $aeo_test_post->post_title : (self::$description ?: $aeo_test_post->post_excerpt); }
+  public static string|null $seo_title = null;
+  public static function replace_seo_fields(string $field, \WP_Post $aeo_test_post): string { if(self::$throw) { throw new \RuntimeException('secret'); } return '%seo_title%' === $field ? (self::$seo_title ?? $aeo_test_post->post_title) : (self::$description ?: $aeo_test_post->post_excerpt); }
   public static function get_settings(string $key): string { return 'Example Publisher'; }
   public static function get_default_schema_type(int $id, bool $valid): string|false { return self::$schema_type; }
  }
@@ -35,11 +36,11 @@ namespace {
  function get_bloginfo(string $key): string { return 'Example Site'; }
  function content_case(): void {
   reset_case(); Settings::$write_ok = true;
-  Settings::$options = ['ignore_crawl_restrictions'=>true];
+  Settings::$options = ['audit_mode'=>'saved-content'];
   $GLOBALS['public'] = '0'; $GLOBALS['aeo_test_post']->post_status = 'draft';
   $GLOBALS['aeo_test_post']->post_content = '<h2>A useful section</h2><p>'.str_repeat('Evidence and examples ',35).'</p><p>'.str_repeat('More useful detail ',25).'</p><img src="image.jpg" alt="Example"><a href="https://example.test/source">Original source</a>';
   $GLOBALS['image'] = true; $GLOBALS['author_exists'] = true;
-  \RankMath\Helper::$active = true; \RankMath\Helper::$schema_type = 'BlogPosting'; \RankMath\Helper::$description = ''; \RankMath\Helper::$throw = false; \RankMath\Schema\DB::$schemas = [];
+  \RankMath\Helper::$active = true; \RankMath\Helper::$schema_type = 'BlogPosting'; \RankMath\Helper::$description = ''; \RankMath\Helper::$throw = false; \RankMath\Helper::$seo_title = null; \RankMath\Schema\DB::$schemas = [];
  }
  $checks = 0;
  content_case(); $before = clone $aeo_test_post; $result = run();
@@ -59,11 +60,13 @@ namespace {
  content_case(); $aeo_test_post->post_content=''; $aeo_test_post->post_excerpt=''; $image=false; check(run()['score']<80, 'Empty content cannot get a high readiness score');
  content_case(); $aeo_test_post->post_content='<p>'.str_repeat('long ',150).'</p><p>Short.</p><img src="x"><a href="x">click here</a>'; $r=run(); check($r['metrics']['short_paragraph_ratio']===0.5 && $r['metrics']['image_alt_ratio']===0.0 && $r['metrics']['descriptive_link_ratio']===0.0, 'Failed ratio measurements are correct');
  $content_metrics=Content::metrics('<script>'.str_repeat('junk ',200).'</script><style>junk</style><p>Real text</p>'); check($content_metrics['word_count']===2, 'Scripts and styles cannot inflate word count');
- content_case(); Settings::$options=['ignore_crawl_restrictions'=>false]; $aeo_test_post->post_status='draft'; check(run()['status']==='fail' && !$requests, 'Strict public mode still requires published output');
+ content_case(); Settings::$options=['audit_mode'=>'public']; $aeo_test_post->post_status='draft'; check(run()['status']==='fail' && !$requests, 'Strict public mode still requires published output');
  content_case(); $allowed=false; check(run() instanceof WP_Error && !$requests, 'Edit permission remains required');
  content_case(); $aeo_test_post->post_type='attachment'; check(run() instanceof WP_Error, 'Unsupported types rejected');
  content_case(); $aeo_test_post->post_content=str_repeat('x',2097153); check(run() instanceof WP_Error, 'Saved input size bounded');
- content_case(); \RankMath\Helper::$active=false; $r=run(); check($r['schema_source']==='unavailable' && $r['score']===60, 'Unsupported provider does not fabricate schema credit');
+ content_case(); \RankMath\Helper::$active=false; $r=run(); check($r['schema_source']==='wordpress-inputs' && $r['score']===100 && 'not-applicable'===$r['checks'][array_search('schema-source', array_column($r['checks'],'rule'), true)]['status'], 'Without a provider, 100 is reachable from WordPress post data');
+ $aeo_test_post->post_excerpt=''; $r=run(); check($r['score']===83 && $r['status']==='pass', 'Without a provider, a missing excerpt loses description points');
+ $image=false; check(run()['status']==='fail', 'Without a provider, the default threshold stays meaningful');
  content_case(); \RankMath\Helper::$schema_type=false; check(run()['score']===60, 'Explicitly disabled default Article does not earn schema credit');
  content_case(); \RankMath\Helper::$throw=true; check(run()['status']==='fail' && !str_contains(wp_json_encode(run()),'secret'), 'Provider errors fail safely');
  content_case(); \RankMath\Helper::$description='%unknown%'; check(run()['score']===85, 'Unresolved description placeholders do not earn points');
@@ -75,5 +78,16 @@ namespace {
  \RankMath\Schema\DB::$schemas[0]['headline']='%unsupported%'; check(run()['score']===90, 'Unsupported schema tokens fail rather than guess');
  content_case(); $aeo_test_post->post_content.='<script type="application/ld+json">{bad}</script>'; check(run()['status']==='fail' && in_array('invalid-saved-schema',run()['blockers'],true), 'Malformed saved JSON blocks despite configured provider');
  content_case(); \RankMath\Helper::$active=false; $aeo_test_post->post_content .= '<script type="application/ld+json">'.wp_json_encode(['@context'=>'https://schema.org','@type'=>'BlogPosting','url'=>'https://example.test/article/','headline'=>'Title','description'=>'Description','author'=>['name'=>'Author'],'publisher'=>['name'=>'Publisher'],'image'=>'https://example.test/image.jpg','datePublished'=>'2026-01-01','dateModified'=>'2026-01-02']).'</script>'; check(run()['score']===100, 'Saved JSON-LD supports provider-free inspection');
+ function slug_json_ld(string $url): string { return '<script type="application/ld+json">'.wp_json_encode(['@context'=>'https://schema.org','@type'=>'BlogPosting','url'=>$url,'headline'=>'Title','description'=>'Description','author'=>['name'=>'Author'],'publisher'=>['name'=>'Publisher'],'image'=>'https://example.test/image.jpg','datePublished'=>'2026-01-01','dateModified'=>'2026-01-02']).'</script>'; }
+ // A draft's permalink is ?p=ID; authors write JSON-LD with the final slug URL.
+ content_case(); \RankMath\Helper::$active=false; $url='https://example.test/?p=1'; $aeo_test_post->post_content.=slug_json_ld('https://example.test/article/'); $r=run();
+ check($r['schema_source']==='saved-json-ld' && $r['score']===100, 'Draft JSON-LD with the slug URL matches the post');
+ $aeo_test_post->post_status='publish'; $url='https://example.test/article/'; check(run()['score']===100, 'Published JSON-LD still matches its permalink');
+ content_case(); \RankMath\Helper::$active=false; $aeo_test_post->post_content.=slug_json_ld('https://example.test/other-post/'); $r=run();
+ check($r['schema_source']==='saved-json-ld' && $r['score']===60 && str_contains(wp_json_encode($r['issues']),'does not match this post'), 'JSON-LD for another URL fails instead of falling back');
+ content_case(); \RankMath\Helper::$active=false; $aeo_test_post->post_type='page'; check(run()['score']===100 && run()['schema_source']==='wordpress-inputs', 'Provider-free page reaches 100');
+ content_case(); Settings::$options=[]; check('saved-content' === run()['audit_mode'] && [] === $requests, 'Default mode is saved-content with no HTTP');
+ content_case(); \RankMath\Helper::$seo_title=' '; check(run()['score']===100, 'Whitespace Rank Math title (fresh install, no template) falls back to the post title');
+ content_case(); $r=run(); check(in_array('canonical',$r['ignored_checks'],true) && !in_array('rendered-canonical',$r['ignored_checks'],true), 'Ignored checks name real public slugs');
  echo "PASS: " . (int) $checks . " content-readiness checks\n";
 }

@@ -19,7 +19,8 @@ final class AEO_Gate extends Post_Tool {
 				'label'               => __( 'AEO publishing gate', 'workflow-tool-aeo-audit' ),
 				'description'         => __( 'Require a complete passing AEO audit before a workflow transition. Uses AEO audit settings and reruns saved content each time. Run AEO audit on demand for the full checklist.', 'workflow-tool-aeo-audit' ),
 				'category'            => 'vip-workflows',
-				'input_schema'        => self::input_schema(),
+				// Transitions send only post_id, and Workflows expects transition tools to reject anything else.
+				'input_schema'        => array_merge( self::input_schema(), array( 'additionalProperties' => false ) ),
 				'output_schema'       => array(
 					'type'       => 'object',
 					'required'   => array( 'status', 'summary', 'score', 'threshold', 'issues' ),
