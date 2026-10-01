@@ -4,10 +4,14 @@ A deterministic answer-engine optimization (AEO) readiness check for editors. It
 
 ## Install and use
 
-1. Install and activate VIP Workflows. The extension needs WordPress 7.0+, PHP 8.2+ (the same as VIP Workflows) and the PHP DOM extension. No API key or AI service is involved.
-2. Copy this directory into `wp-content/plugins/` and activate **Workflow AEO Audit**.
+1. Have VIP Workflows active — either as a plugin or as a VIP platform integration (both work; see below). The extension needs WordPress 7.0+, PHP 8.2+ (the same as VIP Workflows) and the PHP DOM extension. No API key or AI service is involved.
+2. Copy this directory into `wp-content/plugins/` and activate **Workflow AEO Audit**. Activation always succeeds; it does not declare a `Requires Plugins` dependency (see below).
 3. In the Workflows Tools screen, enable **AEO audit** and its command-palette visibility, pick an **Audit mode** and set the **Minimum AEO readiness score** (default 80).
 4. Save a post or page, open the command palette (⌘K or Ctrl+K) and choose **Run AEO audit**. Fix what failed, save, and rerun. Unsaved edits are not inspected.
+
+### No "Requires Plugins" header
+
+On hosted VIP sites checked so far, VIP Workflows runs as a **VIP platform integration**, not a plugin in `wp-content/plugins`. WordPress's `Requires Plugins` header can only validate against plugins it can see there, so declaring `Requires Plugins: vip-workflows` would block activation on exactly the sites this is built for, even though VIP Workflows is fully active and its abilities work. This extension checks for VIP Workflows at runtime instead: activation always succeeds, and if VIP Workflows isn't active, its tools simply don't register — you'll see a warning on the plugin's own row in **Plugins** and a dashboard notice (both admin-only), not a fatal error or a silent partial install.
 
 ## Audit modes
 
