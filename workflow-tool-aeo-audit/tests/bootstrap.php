@@ -8,6 +8,7 @@ if ( ! in_array( '--without-core', $argv, true ) ) {
  function wp_register_ability( string $id, array $args ): void { $GLOBALS['aeo_registered'][ $id ] = $args; }
 }
 function add_action( string $name, mixed $callback ): void { $GLOBALS['aeo_hooks'][ $name ][] = $callback; }
+function plugin_basename( string $file ): string { return 'workflow-tool-aeo-audit/workflow-tool-aeo-audit.php'; }
 define( 'ABSPATH', __DIR__ );
 require __DIR__ . '/../workflow-tool-aeo-audit.php';
 foreach ( $GLOBALS['aeo_hooks']['wp_abilities_api_init'] as $callback ) { $callback(); }
@@ -25,4 +26,5 @@ check( $GLOBALS['aeo_registered']['workflow-tool-aeo-audit/aeo-gate']['meta']['t
 check( false === $GLOBALS['aeo_registered']['workflow-tool-aeo-audit/aeo-gate']['input_schema']['additionalProperties'], 'Gate input rejects extra properties, as Workflows transition tools must' );
 check( array( 'saved-content', 'public' ) === $GLOBALS['aeo_registered'][ $aeo_id ]['meta']['settings_schema']['audit_mode']['enum'], 'Audit mode is a select, not a demo toggle' );
 check( ! isset( $GLOBALS['aeo_registered'][ $aeo_id ]['input_schema']['additionalProperties'] ), 'Report input accepts the options the editor sends alongside post_id' );
-echo "PASS: 8 standalone registration checks\n";
+check( isset( $GLOBALS['aeo_hooks']['after_plugin_row_workflow-tool-aeo-audit/workflow-tool-aeo-audit.php'] ), 'Plugins-row notice registers regardless of VIP Workflows, matching every delivery shape' );
+echo "PASS: 9 standalone registration checks\n";
